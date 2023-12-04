@@ -7,6 +7,10 @@ object ConstantsString {
     const val DIALOG_TITLE_INFORMATION = "INFORMACJA"
     const val DIALOG_INFORMATION_LED_NOT_EXIST = "To oswietlenie led nie jest w tej chwili dostępne "
     const val ADD_NEW_LED = "Dodaj nowe oswietlenie"
+    const val LABEL_ADD_LED_NAME = "NAZWA LED"
+    const val LABEL_ADD_LED_IP = "Adress w sieci"
+    const val BUTTON_ADD_NEW_LED = "Dodaj"
+
 
 
 }

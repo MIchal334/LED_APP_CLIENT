@@ -10,19 +10,17 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -51,8 +49,8 @@ fun Navigation(ledAppFacade: LedAppFacade) {
         composable(route = Screen.MainScreen.route) {
             MainScreen(ledAppFacade = ledAppFacade, navController = navController)
         }
-        composable(route = Screen.AddNewLedScreen.route){
-            AddNewLedScreen(ledAppFacade)
+        composable(route = Screen.AddNewLedScreen.route) {
+            AddNewLedScreen(ledAppFacade = ledAppFacade, navController = navController)
         }
     }
 }
@@ -87,19 +85,59 @@ private fun MainScreen(ledAppFacade: LedAppFacade, navController: NavHostControl
                 verticalArrangement = Arrangement.Bottom
 
             ) {
-                ButtonToGoForward(navController)
+                ButtonToGoForward(
+                    onClick = {
+                        navController.navigate(Screen.AddNewLedScreen.route)
+                    },
+                    buttonText = ConstantsString.ADD_NEW_LED
+                )
             }
         }
     }
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddNewLedScreen(ledAppFacade: LedAppFacade) {
+private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostController) {
     LED_APPTheme {
+        var name by remember { mutableStateOf(TextFieldValue("")) }
+        var address by remember { mutableStateOf(TextFieldValue("")) }
         Column {
             AppName(ConstantsString.APP_NAME)
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.fillMaxHeight(0.1f))
+            TextField(
+                value = name,
+                onValueChange = {
+                    name = it
+                },
+                label = { Text(text = ConstantsString.LABEL_ADD_LED_NAME) },
+                placeholder = { Text(text = "Nazwa") },
+            )
+            Spacer(modifier = Modifier.fillMaxHeight(0.1f))
+            TextField(
+                value = address,
+                onValueChange = {
+                    address = it
+                },
+                label = { Text(text = ConstantsString.LABEL_ADD_LED_IP) },
+                placeholder = { Text(text = "127.0.0.1") },
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(1f),
+            verticalArrangement = Arrangement.Bottom
+
+        ) {
+            ButtonToGoForward(
+                onClick = {
+                    navController.navigate(Screen.MainScreen.route)
+                },
+                buttonText = ConstantsString.BUTTON_ADD_NEW_LED
+            )
         }
     }
 }
@@ -199,17 +237,18 @@ fun AlertDialog(
 
 
 @Composable
-fun ButtonToGoForward(navController: NavController) {
+fun ButtonToGoForward(
+    onClick: () -> Unit,
+    buttonText: String
+) {
     Button(
-        onClick = {
-            navController.navigate(Screen.AddNewLedScreen.route)
-        },
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
             .border(2.dp, MaterialTheme.colorScheme.background, shape = RectangleShape)
     ) {
-        Text(text = ConstantsString.ADD_NEW_LED, textAlign = TextAlign.Center)
+        Text(text = buttonText, textAlign = TextAlign.Center)
     }
 
 }
