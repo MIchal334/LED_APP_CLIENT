@@ -9,8 +9,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -51,8 +49,8 @@ private fun mainScreen(ledAppFacade: LedAppFacade) {
             Spacer(modifier = Modifier.height(15.dp))
             Column(
                 modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .weight(1f, false)
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.75f)
             ) {
                 Text(
                     text = ConstantsString.CHOSE_SERVER, style = MaterialTheme.typography.bodyLarge.copy(
@@ -64,8 +62,17 @@ private fun mainScreen(ledAppFacade: LedAppFacade) {
                 showLedList(ledAppFacade)
             }
 
-//            Spacer(modifier = Modifier.height(150.dp))
-            ButtonToGoForward()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.75f),
+                verticalArrangement = Arrangement.Bottom
+
+            ) {
+                ButtonToGoForward()
+            }
+
 
         }
 
@@ -98,9 +105,11 @@ fun AddLedButton(text: String) {
                 isDialogVisible.value = true
             },
             modifier = Modifier.fillMaxWidth().height(40.dp)
-                .border(2.dp, MaterialTheme.colorScheme.primary, shape = RectangleShape),
+                .border(2.dp, MaterialTheme.colorScheme.background, shape = RectangleShape),
+            colors = ButtonDefaults.buttonColors(Color.DarkGray)
 
-            ) {
+
+        ) {
             Text(text = text, textAlign = TextAlign.Left)
             if (isDialogVisible.value) {
                 AlertDialog(
@@ -166,27 +175,18 @@ fun AlertDialog(
 
 
 @Composable
-fun ButtonToGoForward(
+fun ButtonToGoForward() {
 
-) {
-    Box(
-        modifier = Modifier.fillMaxWidth().height(40.dp)
-            .border(1.dp, MaterialTheme.colorScheme.primary, shape = RectangleShape).clip(MaterialTheme.shapes.medium)
-            .background(Color.LightGray), contentAlignment = Alignment.BottomCenter
+    Button(
+        onClick = {},
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(50.dp)
+            .border(2.dp, MaterialTheme.colorScheme.background, shape = RectangleShape)
     ) {
-
-        Button(
-            onClick = {
-
-            },
-            modifier = Modifier.fillMaxWidth().height(40.dp)
-                .border(2.dp, MaterialTheme.colorScheme.primary, shape = RectangleShape),
-
-            ) {
-            Text(text = "ADD NEW LED", textAlign = TextAlign.Center)
-        }
-
+        Text(text = ConstantsString.ADD_NEW_LED, textAlign = TextAlign.Center)
     }
+
 }
 
 
