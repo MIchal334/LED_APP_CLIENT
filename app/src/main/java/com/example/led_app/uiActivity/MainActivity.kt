@@ -134,7 +134,10 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
         ) {
             ButtonToGoForward(
                 onClick = {
-                    navController.navigate(Screen.MainScreen.route)
+                    val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
+                    if (isSaved) {
+                        navController.navigate(Screen.MainScreen.route)
+                    }
                 },
                 buttonText = ConstantsString.BUTTON_ADD_NEW_LED
             )
@@ -155,7 +158,7 @@ fun showLedList(ledAppFacade: LedAppFacade) {
 
 @Composable
 fun AddLedButton(text: String) {
-    var isDialogVisible = remember { mutableStateOf(false) }
+    val isDialogVisible = remember { mutableStateOf(false) }
     return Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -182,7 +185,6 @@ fun AddLedButton(text: String) {
             }
         }
     }
-
 }
 
 @Composable
