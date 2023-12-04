@@ -22,27 +22,44 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.led_app.application.component.DaggerFacadeComponent
 import com.example.led_app.domain.ConstantsString
 import com.example.led_app.domain.LedAppFacade
 import com.example.led_app.ui.theme.LED_APPTheme
 
-
 class MainActivity : ComponentActivity() {
 
     private val ledAppFacade: LedAppFacade = DaggerFacadeComponent.create().injectFacade()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
-            mainScreen(ledAppFacade)
+            Navigation(ledAppFacade)
+        }
+    }
+}
+
+@Composable
+fun Navigation(ledAppFacade: LedAppFacade) {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = Screen.MainScreen.route) {
+        composable(route = Screen.MainScreen.route) {
+            MainScreen(ledAppFacade = ledAppFacade, navController = navController)
+        }
+        composable(route = Screen.AddNewLedScreen.route){
+            AddNewLedScreen(ledAppFacade)
         }
     }
 }
 
 
 @Composable
-private fun mainScreen(ledAppFacade: LedAppFacade) {
+private fun MainScreen(ledAppFacade: LedAppFacade, navController: NavHostController) {
     LED_APPTheme {
         Column {
             AppName(ConstantsString.APP_NAME)
@@ -70,16 +87,22 @@ private fun mainScreen(ledAppFacade: LedAppFacade) {
                 verticalArrangement = Arrangement.Bottom
 
             ) {
-                ButtonToGoForward()
+                ButtonToGoForward(navController)
             }
-
-
         }
-
-
     }
 }
 
+
+@Composable
+private fun AddNewLedScreen(ledAppFacade: LedAppFacade) {
+    LED_APPTheme {
+        Column {
+            AppName(ConstantsString.APP_NAME)
+            Spacer(modifier = Modifier.height(15.dp))
+        }
+    }
+}
 
 @Composable
 fun showLedList(ledAppFacade: LedAppFacade) {
@@ -129,7 +152,8 @@ fun AppName(appName: String) {
 
     Box(
         modifier = Modifier.fillMaxWidth().height(70.dp)
-            .border(1.dp, MaterialTheme.colorScheme.primary, shape = RectangleShape).clip(MaterialTheme.shapes.medium)
+            .border(1.dp, MaterialTheme.colorScheme.primary, shape = RectangleShape)
+            .clip(MaterialTheme.shapes.medium)
             .background(Color.LightGray), contentAlignment = Alignment.TopCenter
     ) {
         Text(
@@ -175,10 +199,11 @@ fun AlertDialog(
 
 
 @Composable
-fun ButtonToGoForward() {
-
+fun ButtonToGoForward(navController: NavController) {
     Button(
-        onClick = {},
+        onClick = {
+            navController.navigate(Screen.AddNewLedScreen.route)
+        },
         modifier = Modifier
             .fillMaxWidth()
             .height(50.dp)
