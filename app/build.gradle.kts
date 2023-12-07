@@ -77,6 +77,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("com.google.dagger:dagger:2.48")
+    implementation("org.danilopianini:khttp:1.4.2")
     implementation("androidx.navigation:navigation-compose:2.4.0-alpha04")
     kapt("com.google.dagger:dagger-compiler:2.48")
     testImplementation("junit:junit:4.13.2")
