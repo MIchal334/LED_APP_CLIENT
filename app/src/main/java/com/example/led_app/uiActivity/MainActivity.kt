@@ -77,7 +77,7 @@ private fun MainScreen(ledAppFacade: LedAppFacade, navController: NavHostControl
                 showLedList(ledAppFacade)
             }
 
-
+            val isDialogVisible = remember { mutableStateOf(false) }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -89,7 +89,8 @@ private fun MainScreen(ledAppFacade: LedAppFacade, navController: NavHostControl
                     onClick = {
                         navController.navigate(Screen.AddNewLedScreen.route)
                     },
-                    buttonText = ConstantsString.ADD_NEW_LED
+                    buttonText = ConstantsString.ADD_NEW_LED,
+                    isVisible = isDialogVisible
                 )
             }
         }
@@ -142,7 +143,7 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
                 )
             }
         }
-
+        val isDialogVisible = remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -156,10 +157,13 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
                         ledAppFacade.saveNewLed(name.text, address.text)
                         navController.navigate(Screen.MainScreen.route)
                     } catch (e: RuntimeException) {
-                        println(e)
+                        isDialogVisible.value = true
                     }
                 },
-                buttonText = ConstantsString.BUTTON_ADD_NEW_LED
+                buttonText = ConstantsString.BUTTON_ADD_NEW_LED,
+                isVisible = isDialogVisible,
+                dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
+                dialogText = ConstantsString.LED_SERVER_NOT_RESPONSE
             )
         }
     }
@@ -261,7 +265,10 @@ fun AlertDialog(
 @Composable
 fun ButtonToGoForward(
     onClick: () -> Unit,
-    buttonText: String
+    buttonText: String,
+    dialogText: String? = "Allert",
+    dialogTitle: String? = "Allert",
+    isVisible: MutableState<Boolean>? = null
 ) {
     Button(
         onClick = onClick,
@@ -271,6 +278,14 @@ fun ButtonToGoForward(
             .border(2.dp, MaterialTheme.colorScheme.background, shape = RectangleShape)
     ) {
         Text(text = buttonText, textAlign = TextAlign.Center)
+        if (isVisible != null && isVisible.value) {
+            AlertDialog(
+                onDismissRequest = { isVisible.value = false },
+                onConfirmation = { isVisible.value = false },
+                dialogText = dialogText!!,
+                dialogTitle = dialogTitle!!
+            )
+        }
     }
 
 }

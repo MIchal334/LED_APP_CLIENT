@@ -10,6 +10,7 @@ object ConstantsString {
     const val LABEL_ADD_LED_NAME = "NAZWA LED"
     const val LABEL_ADD_LED_IP = "Adress w sieci"
     const val BUTTON_ADD_NEW_LED = "Dodaj"
+    const val LED_SERVER_NOT_RESPONSE = "LED pod tym adresem nie odpowiada. Możliwe że nie istnieje"
 
 
 
