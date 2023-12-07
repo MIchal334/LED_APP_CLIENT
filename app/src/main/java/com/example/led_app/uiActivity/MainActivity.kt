@@ -106,23 +106,41 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
         Column {
             AppName(ConstantsString.APP_NAME)
             Spacer(modifier = Modifier.fillMaxHeight(0.1f))
-            TextField(
-                value = name,
-                onValueChange = {
-                    name = it
-                },
-                label = { Text(text = ConstantsString.LABEL_ADD_LED_NAME) },
-                placeholder = { Text(text = "Nazwa") },
-            )
+            Box(
+                modifier = Modifier
+                    .padding(16.dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Text(text =  ConstantsString.LABEL_ADD_LED_NAME)
+                Spacer(modifier = Modifier.height(30.dp))
+                TextField(
+                    value = name,
+                    onValueChange = {
+                        name = it
+                    },
+                    label = { Text(text = ConstantsString.LABEL_ADD_LED_NAME) },
+                    placeholder = { Text(text = "Nazwa") },
+
+                    )
+            }
+
             Spacer(modifier = Modifier.fillMaxHeight(0.1f))
-            TextField(
-                value = address,
-                onValueChange = {
-                    address = it
-                },
-                label = { Text(text = ConstantsString.LABEL_ADD_LED_IP) },
-                placeholder = { Text(text = "127.0.0.1") },
-            )
+            Box(
+                modifier = Modifier
+                    .padding(16.dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                Text(text = ConstantsString.LABEL_ADD_LED_IP)
+                Spacer(modifier = Modifier.height(15.dp))
+                TextField(
+                    value = address,
+                    onValueChange = {
+                        address = it
+                    },
+                    label = { Text(text = ConstantsString.LABEL_ADD_LED_IP) },
+                    placeholder = { Text(text = "127.0.0.1") },
+                )
+            }
         }
 
         Column(
