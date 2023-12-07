@@ -111,7 +111,7 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
                     .padding(16.dp),
                 contentAlignment = Alignment.TopCenter
             ) {
-                Text(text =  ConstantsString.LABEL_ADD_LED_NAME)
+                Text(text = ConstantsString.LABEL_ADD_LED_NAME)
                 Spacer(modifier = Modifier.height(30.dp))
                 TextField(
                     value = name,
@@ -152,9 +152,11 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
         ) {
             ButtonToGoForward(
                 onClick = {
-                    val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
-                    if (isSaved) {
+                    try {
+                        ledAppFacade.saveNewLed(name.text, address.text)
                         navController.navigate(Screen.MainScreen.route)
+                    } catch (e: RuntimeException) {
+                        println(e)
                     }
                 },
                 buttonText = ConstantsString.BUTTON_ADD_NEW_LED
