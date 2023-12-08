@@ -12,7 +12,8 @@ class LedAppRepositoryInMemory @Inject constructor() : LedAppRepository {
         return ledList.stream().map { led -> led.ledName }.toList()
     }
 
-    override fun saveNewLed(ledToSave: LedData) {
+    override fun saveNewLed(ledToSave: LedData): Boolean {
         this.ledList.add(ledToSave)
+        return true;
     }
 }

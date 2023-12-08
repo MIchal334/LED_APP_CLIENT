@@ -6,5 +6,5 @@ import com.example.led_app.domain.LedData
 interface LedAppRepository {
     fun getAllKnownServerName(): List<String>
 
-    fun saveNewLed(ledToSave: LedData)
+    fun saveNewLed(ledToSave: LedData): Boolean
 }

@@ -153,10 +153,10 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
         ) {
             ButtonToGoForward(
                 onClick = {
-                    try {
-                        ledAppFacade.saveNewLed(name.text, address.text)
+                    val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
+                    if (isSaved) {
                         navController.navigate(Screen.MainScreen.route)
-                    } catch (e: RuntimeException) {
+                    } else {
                         isDialogVisible.value = true
                     }
                 },

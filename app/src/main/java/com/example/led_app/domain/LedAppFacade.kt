@@ -9,10 +9,12 @@ class LedAppFacade @Inject constructor(private val ledRepository: LedAppReposito
         return ledRepository.getAllKnownServerName()
     }
 
-    fun saveNewLed(ledName: String, ledIpAddress: String) {
-        ledClient.checkConnectionWithServer(ledIpAddress)
-        val ledToSave = LedData(ledName = ledName, ipAddress = ledIpAddress)
-        ledRepository.saveNewLed(ledToSave)
+    fun saveNewLed(ledName: String, ledIpAddress: String): Boolean {
+        val result = ledClient.getServerConfiguration(ledName, ledIpAddress)
+        result.fold(
+            { return false },
+            { data -> return ledRepository.saveNewLed(data) }
+        )
     }
 
 }

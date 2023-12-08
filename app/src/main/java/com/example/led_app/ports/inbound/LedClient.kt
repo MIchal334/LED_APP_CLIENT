@@ -1,7 +1,9 @@
 package com.example.led_app.ports.inbound
 
-interface LedClient {
+import arrow.core.Either
+import com.example.led_app.domain.LedData
 
-    fun checkConnectionWithServer(ipAddress: String)
+interface LedClient {
+    fun getServerConfiguration(ledName: String, ipAddress: String): Either<RuntimeException, LedData>
 
 }
