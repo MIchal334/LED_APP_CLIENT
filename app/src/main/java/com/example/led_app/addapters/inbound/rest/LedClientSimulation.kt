@@ -1,3 +1,4 @@
+import android.util.Log
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
@@ -11,7 +12,7 @@ import retrofit2.http.GET
 
 data class ServerResponse(
     val ledModes: List<OptionRequestData>,
-    val ledChangesOption: List<OptionRequestData>
+    val changeModes: List<OptionRequestData>
 )
 
 interface ApiService {
@@ -22,27 +23,31 @@ interface ApiService {
 class LedClientSimulation : LedClient {
     private val serverAddress: String = "http://localhost:8090/"
 
-    override fun getServerConfiguration(ledName: String, ipAddress: String): Either<RuntimeException, LedData> {
+    override fun getServerConfiguration(
+        ledName: String,
+        ipAddress: String
+    ): Either<RuntimeException, LedData> {
         return tryConnection(ledName, ipAddress)
     }
 
     private fun tryConnection(ledName: String, ipAddress: String): Either<RuntimeException, LedData> {
 
-        try {
+        return try {
             val response = prepareRestClient().get().execute()
-            return if (response.code() == 200) {
+            if (response.code() == 200) {
                 LedData.buildBaseOnServerResponse(
                     name = ledName,
                     ipAddress = ipAddress,
                     serverResponse = response.body()!!
-                )
-                    .right()
+                ).right()
 
             } else {
+                Log.e("Response from server", "Unsuccessful response: ${response.code()}")
                 RuntimeException("Not connection").left()
             }
         } catch (e: Exception) {
-            return RuntimeException("Not connection").left()
+            Log.e("Response from server", "Unsuccessful connection: ${e}")
+            RuntimeException("Not connection").left()
         }
 
     }
@@ -53,4 +58,5 @@ class LedClientSimulation : LedClient {
             .addConverterFactory(MoshiConverterFactory.create())
             .build().create(ApiService::class.java)
     }
+
 }

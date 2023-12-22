@@ -4,6 +4,10 @@ import arrow.core.Either
 import com.example.led_app.domain.LedData
 
 interface LedClient {
-    fun getServerConfiguration(ledName: String, ipAddress: String): Either<RuntimeException, LedData>
+    fun getServerConfiguration(
+        ledName: String,
+        ipAddress: String,
+
+        ): Either<RuntimeException, LedData>
 
 }

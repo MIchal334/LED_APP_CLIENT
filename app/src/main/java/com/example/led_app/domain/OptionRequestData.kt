@@ -5,6 +5,6 @@ data class OptionRequestData(
     val endpoint: String,
     val requestMethod: HttpMethod? = HttpMethod.GET,
     val setColor: Boolean? = false,
-    val additionalParameterList: List<Pair<String, TypeOfParameter>>? = listOf()
+//    val additionalParameterList: List<Pair<String, String>>? = listOf()
 )
 

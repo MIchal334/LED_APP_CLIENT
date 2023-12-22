@@ -10,7 +10,7 @@ class LedData(
 ) {
     companion object {
         fun buildBaseOnServerResponse(serverResponse: ServerResponse, name: String, ipAddress: String): LedData {
-            return LedData(name, ipAddress, serverResponse.ledModes, serverResponse.ledChangesOption)
+            return LedData(name, ipAddress, serverResponse.ledModes, serverResponse.changeModes)
         }
     }
 

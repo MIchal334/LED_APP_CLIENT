@@ -119,7 +119,7 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
                     onValueChange = {
                         name = it
                     },
-                    label = { Text(text = ConstantsString.LABEL_ADD_LED_NAME) },
+                    label = { Text(text = ConstantsString.LABEL_ADD_LED_NAME)},
                     placeholder = { Text(text = "Nazwa") },
 
                     )
