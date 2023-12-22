@@ -8,8 +8,8 @@ import kotlin.streams.toList
 class LedAppRepositoryInMemory @Inject constructor() : LedAppRepository {
 
     val ledList: MutableList<LedData> = mutableListOf()
-    override fun getAllKnownServerName(): List<String> {
-        return ledList.stream().map { led -> led.ledName }.toList()
+    override fun getAllKnownServerNameAddress(): List<Pair<String, String>> {
+        return ledList.stream().map { led -> Pair(led.ledName, led.ipAddress) }.toList()
     }
 
     override fun saveNewLed(ledToSave: LedData): Boolean {

@@ -54,6 +54,10 @@ fun Navigation(ledAppFacade: LedAppFacade) {
         composable(route = Screen.AddNewLedScreen.route) {
             AddNewLedScreen(ledAppFacade = ledAppFacade, navController = navController)
         }
+
+        composable(route = Screen.LedScreen.route) {
+            LedScreen(ledAppFacade = ledAppFacade, navController = navController)
+        }
     }
 }
 
@@ -76,7 +80,7 @@ private fun MainScreen(ledAppFacade: LedAppFacade, navController: NavHostControl
 
                 )
                 Spacer(modifier = Modifier.height(15.dp))
-                showLedList(ledAppFacade)
+                showLedList(ledAppFacade, navController)
             }
 
             val isDialogVisible = remember { mutableStateOf(false) }
@@ -121,7 +125,7 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
                     onValueChange = {
                         name = it
                     },
-                    label = { Text(text = ConstantsString.LABEL_ADD_LED_NAME)},
+                    label = { Text(text = ConstantsString.LABEL_ADD_LED_NAME) },
                     placeholder = { Text(text = "Nazwa") },
 
                     )
@@ -174,20 +178,38 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
     }
 }
 
+
 @Composable
-fun showLedList(ledAppFacade: LedAppFacade) {
-    val serverList = ledAppFacade.getAllServersName()
+private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostController) {
+    LED_APPTheme {
+        Column {
+            AppName(ConstantsString.APP_NAME)
+            Spacer(modifier = Modifier.height(15.dp))
+
+        }
+    }
+}
+
+@Composable
+fun showLedList(ledAppFacade: LedAppFacade, navController: NavHostController) {
+    val serverList = ledAppFacade.getAllServersNameAndAddress()
     LazyColumn(Modifier.fillMaxHeight()) {
-        items(serverList) { ledName ->
-            AddLedButton(text = ConstantsString.SERVER_NAME + " ".repeat(10) + ledName)
+        items(serverList) { pair ->
+            AddLedButton(
+                text = ConstantsString.SERVER_NAME + " ".repeat(10) + pair.first,
+                ledAddress = pair.second,
+                ledAppFacade,
+                navController
+            )
         }
     }
 }
 
 
 @Composable
-fun AddLedButton(text: String) {
+fun AddLedButton(text: String, ledAddress: String, ledAppFacade: LedAppFacade, navController: NavHostController) {
     val isDialogVisible = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     return Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -195,7 +217,14 @@ fun AddLedButton(text: String) {
     ) {
         Button(
             onClick = {
-                isDialogVisible.value = true
+                coroutineScope.launch {
+                    val connected = ledAppFacade.testConnectionWithServer(ledAddress)
+                    if (connected) {
+                        navController.navigate(Screen.LedScreen.route)
+                    } else {
+                        isDialogVisible.value = true
+                    }
+                }
             },
             modifier = Modifier.fillMaxWidth().height(40.dp)
                 .border(2.dp, MaterialTheme.colorScheme.background, shape = RectangleShape),
