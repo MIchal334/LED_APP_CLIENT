@@ -7,15 +7,10 @@ import com.example.led_app.domain.OptionRequestData
 import com.example.led_app.ports.inbound.LedClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.RequestBody
 import retrofit2.Call
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.Body
 import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Url
 
 data class ServerResponse(
     val ledModes: List<OptionRequestData>,
@@ -29,17 +24,13 @@ interface ApiService {
     @GET("config")
     fun getConfig(): Call<ServerResponse>
 
-    @GET
-    suspend fun executeDynamicGetRequest(@Url url: String): Response<Void>
 
-    @POST
-    suspend fun executeDynamicPostRequest(@Url url: String, @Body requestBody: RequestBody): Response<Void>
 }
 
 class LedClientSimulation : LedClient {
-    private val serverAddress: String = "http://192.168.1.8:8090/"
+
     override suspend fun getTestConnection(ipAddress: String): Boolean {
-       return testConnectionRequest(serverAddress)
+        return testConnectionRequest(ipAddress)
     }
 
     override suspend fun getServerConfiguration(
@@ -52,7 +43,7 @@ class LedClientSimulation : LedClient {
     private suspend fun testConnectionRequest(ipAddress: String): Boolean {
         try {
             val response = withContext(Dispatchers.IO) {
-                prepareRestClient().getTest().execute()
+                prepareRestClient(ipAddress).getTest().execute()
             }
             if (response.code() == 200) {
                 Log.i("Response from server", "Connection OK")
@@ -70,7 +61,7 @@ class LedClientSimulation : LedClient {
 
         return try {
             val response = withContext(Dispatchers.IO) {
-                prepareRestClient().getConfig().execute()
+                prepareRestClient(ipAddress).getConfig().execute()
             }
             if (response.code() == 200) {
                 Log.i("Response from server", "Response: ${response.body()}")
@@ -90,9 +81,9 @@ class LedClientSimulation : LedClient {
         }
     }
 
-    private fun prepareRestClient(): ApiService {
+    private fun prepareRestClient(ipAddress: String): ApiService {
         return Retrofit.Builder()
-            .baseUrl(serverAddress)
+            .baseUrl(ipAddress)
             .addConverterFactory(MoshiConverterFactory.create())
             .build().create(ApiService::class.java)
     }
