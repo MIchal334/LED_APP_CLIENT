@@ -11,6 +11,11 @@ object ConstantsString {
     const val LABEL_ADD_LED_IP = "Adress w sieci"
     const val BUTTON_ADD_NEW_LED = "Dodaj nowe LED"
     const val LED_SERVER_NOT_RESPONSE = "LED pod tym adresem nie odpowiada. Możliwe że nie istnieje"
+    const val BUTTON_SET_NEW_COLOR = "Ustaw nowy kolor"
+    const val BUTTON_CHOSE_MODES = "Wybierz tryb oświetlenia"
+    const val BUTTON_UPDATE_DATA = "Uaktualnij dane LED"
+    const val BUTTON_TURN_OFF_LED = "Wyłącz LED"
+
 
 
 

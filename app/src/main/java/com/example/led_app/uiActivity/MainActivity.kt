@@ -184,7 +184,35 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
     LED_APPTheme {
         Column {
             AppName(ConstantsString.APP_NAME)
-            Spacer(modifier = Modifier.height(15.dp))
+            Spacer(modifier = Modifier.height(45.dp))
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(1f),
+                verticalArrangement = Arrangement.Top
+
+            ) {
+                ButtonToGoForward(
+                    onClick = {},
+                    buttonText = ConstantsString.BUTTON_SET_NEW_COLOR,
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                ButtonToGoForward(
+                    onClick = {},
+                    buttonText = ConstantsString.BUTTON_CHOSE_MODES,
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                ButtonToGoForward(
+                    onClick = {},
+                    buttonText = ConstantsString.BUTTON_UPDATE_DATA,
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+                ButtonToGoForward(
+                    onClick = {},
+                    buttonText = ConstantsString.BUTTON_TURN_OFF_LED,
+                )
+            }
 
         }
     }
@@ -196,7 +224,7 @@ fun showLedList(ledAppFacade: LedAppFacade, navController: NavHostController) {
     LazyColumn(Modifier.fillMaxHeight()) {
         items(serverList) { pair ->
             AddLedButton(
-                text = ConstantsString.SERVER_NAME + " ".repeat(10) + pair.first,
+                text = ConstantsString.SERVER_NAME + " ".repeat(5) + pair.first,
                 ledAddress = pair.second,
                 ledAppFacade,
                 navController
@@ -226,7 +254,7 @@ fun AddLedButton(text: String, ledAddress: String, ledAppFacade: LedAppFacade, n
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth().height(40.dp)
+            modifier = Modifier.fillMaxWidth().height(60.dp)
                 .border(2.dp, MaterialTheme.colorScheme.background, shape = RectangleShape),
             colors = ButtonDefaults.buttonColors(Color.DarkGray)
 
@@ -308,10 +336,10 @@ fun ButtonToGoForward(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(50.dp)
+            .height(75.dp)
             .border(2.dp, MaterialTheme.colorScheme.background, shape = RectangleShape)
     ) {
-        Text(text = buttonText, textAlign = TextAlign.Center)
+        Text(text = buttonText, textAlign = TextAlign.Center, fontSize = 18.sp)
         if (isVisible != null && isVisible.value) {
             AlertDialog(
                 onDismissRequest = { isVisible.value = false },
