@@ -29,6 +29,8 @@ import com.example.led_app.application.component.DaggerFacadeComponent
 import com.example.led_app.domain.ConstantsString
 import com.example.led_app.domain.LedAppFacade
 import com.example.led_app.ui.theme.LED_APPTheme
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
@@ -98,7 +100,7 @@ private fun MainScreen(ledAppFacade: LedAppFacade, navController: NavHostControl
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, DelicateCoroutinesApi::class)
 @Composable
 private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostController) {
     LED_APPTheme {
@@ -144,6 +146,7 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
             }
         }
         val isDialogVisible = remember { mutableStateOf(false) }
+        val coroutineScope = rememberCoroutineScope()
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -153,11 +156,13 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
         ) {
             ButtonToGoForward(
                 onClick = {
-                    val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
-                    if (isSaved) {
-                        navController.navigate(Screen.MainScreen.route)
-                    } else {
-                        isDialogVisible.value = true
+                    coroutineScope.launch {
+                        val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
+                        if (isSaved) {
+                            navController.navigate(Screen.MainScreen.route)
+                        } else {
+                            isDialogVisible.value = true
+                        }
                     }
                 },
                 buttonText = ConstantsString.BUTTON_ADD_NEW_LED,

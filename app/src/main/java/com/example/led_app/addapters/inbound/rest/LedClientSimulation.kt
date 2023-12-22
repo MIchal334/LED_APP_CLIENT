@@ -5,6 +5,8 @@ import arrow.core.right
 import com.example.led_app.domain.LedData
 import com.example.led_app.domain.OptionRequestData
 import com.example.led_app.ports.inbound.LedClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -21,20 +23,23 @@ interface ApiService {
 }
 
 class LedClientSimulation : LedClient {
-    private val serverAddress: String = "http://localhost:8090/"
+    private val serverAddress: String = "http://192.168.1.8:8090/"
 
-    override fun getServerConfiguration(
+    override suspend fun getServerConfiguration(
         ledName: String,
         ipAddress: String
     ): Either<RuntimeException, LedData> {
         return tryConnection(ledName, ipAddress)
     }
 
-    private fun tryConnection(ledName: String, ipAddress: String): Either<RuntimeException, LedData> {
+    private suspend fun tryConnection(ledName: String, ipAddress: String): Either<RuntimeException, LedData> {
 
         return try {
-            val response = prepareRestClient().get().execute()
+            val response = withContext(Dispatchers.IO) {
+                prepareRestClient().get().execute()
+            }
             if (response.code() == 200) {
+                Log.i("Response from server", "Response: ${response.body()}")
                 LedData.buildBaseOnServerResponse(
                     name = ledName,
                     ipAddress = ipAddress,
@@ -42,11 +47,11 @@ class LedClientSimulation : LedClient {
                 ).right()
 
             } else {
-                Log.e("Response from server", "Unsuccessful response: ${response.code()}")
+                Log.i("Response from server", "Unsuccessful response: ${response.code()}")
                 RuntimeException("Not connection").left()
             }
         } catch (e: Exception) {
-            Log.e("Response from server", "Unsuccessful connection: ${e}")
+            Log.e("Response from server", "Request failed: $e", e)
             RuntimeException("Not connection").left()
         }
 

@@ -4,7 +4,7 @@ import arrow.core.Either
 import com.example.led_app.domain.LedData
 
 interface LedClient {
-    fun getServerConfiguration(
+    suspend fun getServerConfiguration(
         ledName: String,
         ipAddress: String,
 
