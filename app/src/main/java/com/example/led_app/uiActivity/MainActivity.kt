@@ -1,6 +1,7 @@
 package com.example.led_app.uiActivity
 
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -189,8 +190,12 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
 }
 
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostController, ledIp: String, ledName: String) {
+    val coroutineScope = rememberCoroutineScope()
+    var dialogTextTurnOff: String = ""
+    val isTurnOffDialogVisible = remember { mutableStateOf(false) }
     LED_APPTheme {
         Column {
             AppName(ConstantsString.APP_NAME + " : " + ledName)
@@ -218,9 +223,25 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                     buttonText = ConstantsString.BUTTON_UPDATE_DATA,
                 )
                 Spacer(modifier = Modifier.height(30.dp))
+
                 ButtonToGoForward(
-                    onClick = {},
+                    onClick = {
+                        coroutineScope.launch {
+                            val turnOff = ledAppFacade.turnOffLed(ledIp)
+                            //TODO FIX INFORMATION
+                            if (turnOff) {
+                                dialogTextTurnOff = ConstantsString.LED_TURNED_OFF
+                                isTurnOffDialogVisible.value = true
+                            } else {
+                                dialogTextTurnOff = ConstantsString.ERROR_OCCURED
+                                isTurnOffDialogVisible.value = true
+                            }
+                        }
+                    },
                     buttonText = ConstantsString.BUTTON_TURN_OFF_LED,
+                    isVisible = isTurnOffDialogVisible,
+                    dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
+                    dialogText = dialogTextTurnOff
                 )
             }
 

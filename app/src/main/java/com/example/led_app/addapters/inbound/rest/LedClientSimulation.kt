@@ -51,7 +51,7 @@ class LedClientSimulation : LedClient {
     private suspend fun tryTurnOffLed(ipAddress: String): Boolean {
         try {
             val response = withContext(Dispatchers.IO) {
-                prepareRestClient(ipAddress).getTest().execute()
+                prepareRestClient(ipAddress).turnOffLed().execute()
             }
             if (response.code() == 204) {
                 Log.i("Response from server", "Connection OK")
