@@ -1,6 +1,7 @@
 package com.example.led_app.uiActivity
 
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,8 +23,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import com.example.led_app.application.component.DaggerFacadeComponent
 import com.example.led_app.domain.ConstantsString
@@ -32,6 +35,8 @@ import com.example.led_app.ui.theme.LED_APPTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
+
+//TODO TERAZ TRZABA DODAC FUNKCJNALNOSCI STRZELNIA DO SERWARA Z WYLACZNIEM LEDOW ALBO WGL Z USTWIEM NOWEGO MODE CZY TEZ KOLORU
 class MainActivity : ComponentActivity() {
 
     private val ledAppFacade: LedAppFacade = DaggerFacadeComponent.create().injectFacade()
@@ -55,8 +60,13 @@ fun Navigation(ledAppFacade: LedAppFacade) {
             AddNewLedScreen(ledAppFacade = ledAppFacade, navController = navController)
         }
 
-        composable(route = Screen.LedScreen.route) {
-            LedScreen(ledAppFacade = ledAppFacade, navController = navController)
+        composable(route = Screen.LedScreen.route,
+            arguments = listOf(navArgument("ledIp") { type = NavType.StringType },
+                navArgument("ledName") { type = NavType.StringType }
+            )) { backStackEntry ->
+            val ledIp = backStackEntry.arguments?.getString("ledIp") ?: ""
+            val ledName = backStackEntry.arguments?.getString("ledName") ?: ""
+            LedScreen(ledAppFacade = ledAppFacade, navController = navController, ledIp, ledName)
         }
     }
 }
@@ -180,10 +190,10 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
 
 
 @Composable
-private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostController) {
+private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostController, ledIp: String, ledName: String) {
     LED_APPTheme {
         Column {
-            AppName(ConstantsString.APP_NAME)
+            AppName(ConstantsString.APP_NAME + " : " + ledName)
             Spacer(modifier = Modifier.height(45.dp))
 
             Column(
@@ -226,6 +236,7 @@ fun showLedList(ledAppFacade: LedAppFacade, navController: NavHostController) {
             AddLedButton(
                 text = ConstantsString.SERVER_NAME + " ".repeat(5) + pair.first,
                 ledAddress = pair.second,
+                ledName = pair.first,
                 ledAppFacade,
                 navController
             )
@@ -235,7 +246,13 @@ fun showLedList(ledAppFacade: LedAppFacade, navController: NavHostController) {
 
 
 @Composable
-fun AddLedButton(text: String, ledAddress: String, ledAppFacade: LedAppFacade, navController: NavHostController) {
+fun AddLedButton(
+    text: String,
+    ledAddress: String,
+    ledName: String,
+    ledAppFacade: LedAppFacade,
+    navController: NavHostController
+) {
     val isDialogVisible = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     return Box(
@@ -248,7 +265,15 @@ fun AddLedButton(text: String, ledAddress: String, ledAppFacade: LedAppFacade, n
                 coroutineScope.launch {
                     val connected = ledAppFacade.testConnectionWithServer(ledAddress)
                     if (connected) {
-                        navController.navigate(Screen.LedScreen.route)
+                        navController.navigate(
+                            Screen.LedScreen.route.replace(
+                                oldValue = "{ledIp}",
+                                newValue = Uri.encode(ledAddress)
+                            ).replace(
+                                oldValue = "{ledName}",
+                                newValue = ledName
+                            )
+                        )
                     } else {
                         isDialogVisible.value = true
                     }

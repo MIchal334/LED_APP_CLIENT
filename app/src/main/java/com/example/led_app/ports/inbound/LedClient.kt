@@ -10,4 +10,6 @@ interface LedClient {
         ipAddress: String,
     ): Either<RuntimeException, LedData>
 
+    suspend fun turnOffLed(ipAddress: String): Boolean
+
 }

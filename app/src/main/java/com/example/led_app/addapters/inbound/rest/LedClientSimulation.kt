@@ -11,6 +11,7 @@ import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.PUT
 
 data class ServerResponse(
     val ledModes: List<OptionRequestData>,
@@ -24,9 +25,12 @@ interface ApiService {
     @GET("config")
     fun getConfig(): Call<ServerResponse>
 
+    @PUT("off")
+    fun turnOffLed(): Call<Void>
 
 }
 
+//TODO UJEDNLISIC TO BO SIE FUNKCJNLANOSCI POWTARZAJA ZROBIC JEDNA METODE "doRequest"
 class LedClientSimulation : LedClient {
 
     override suspend fun getTestConnection(ipAddress: String): Boolean {
@@ -38,6 +42,26 @@ class LedClientSimulation : LedClient {
         ipAddress: String
     ): Either<RuntimeException, LedData> {
         return getConfigRequest(ledName, ipAddress)
+    }
+
+    override suspend fun turnOffLed(ipAddress: String): Boolean {
+        return tryTurnOffLed(ipAddress)
+    }
+
+    private suspend fun tryTurnOffLed(ipAddress: String): Boolean {
+        try {
+            val response = withContext(Dispatchers.IO) {
+                prepareRestClient(ipAddress).getTest().execute()
+            }
+            if (response.code() == 204) {
+                Log.i("Response from server", "Connection OK")
+                return true
+            }
+            return false
+        } catch (e: Exception) {
+            Log.i("Response from server", "NOT CONNECTION")
+            return false
+        }
     }
 
     private suspend fun testConnectionRequest(ipAddress: String): Boolean {
@@ -54,7 +78,6 @@ class LedClientSimulation : LedClient {
             Log.i("Response from server", "NOT CONNECTION")
             return false
         }
-
     }
 
     private suspend fun getConfigRequest(ledName: String, ipAddress: String): Either<RuntimeException, LedData> {
@@ -83,7 +106,7 @@ class LedClientSimulation : LedClient {
 
     private fun prepareRestClient(ipAddress: String): ApiService {
         return Retrofit.Builder()
-            .baseUrl(ipAddress)
+            .baseUrl(ipAddress + "/")
             .addConverterFactory(MoshiConverterFactory.create())
             .build().create(ApiService::class.java)
     }

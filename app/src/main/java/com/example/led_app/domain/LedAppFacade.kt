@@ -5,8 +5,12 @@ import com.example.led_app.ports.outbound.LedAppRepository
 import javax.inject.Inject
 
 class LedAppFacade @Inject constructor(private val ledRepository: LedAppRepository, private val ledClient: LedClient) {
-    fun getAllServersNameAndAddress(): List<Pair<String,String>> {
+    fun getAllServersNameAndAddress(): List<Pair<String, String>> {
         return ledRepository.getAllKnownServerNameAddress()
+    }
+
+    suspend fun turnOffLed(ledIpAddress: String): Boolean {
+        return ledClient.turnOffLed(ledIpAddress)
     }
 
     suspend fun testConnectionWithServer(ledIpAddress: String): Boolean {
