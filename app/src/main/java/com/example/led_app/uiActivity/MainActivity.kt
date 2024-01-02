@@ -268,15 +268,113 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
     }
 }
 
-
+//TODO SCREEN TO REFACTOR
 @Composable
 private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostController, ledIp: String, ledName: String) {
+    var redValue = 0
+    var greenValue = 0
+    var blueValue = 0
     LED_APPTheme {
         Column {
             AppName(ConstantsString.APP_NAME + " : " + ledName)
+            Spacer(modifier = Modifier.height(45.dp))
+
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                var redValueBar by remember { mutableStateOf(100) }
+                var greenValueBar by remember { mutableStateOf(100) }
+                var blueValueBar by remember { mutableStateOf(100) }
+                var brightness by remember { mutableStateOf(0) }
+
+                Text(text = "Ustaw Kolor:", textAlign = TextAlign.Left, fontSize = 30.sp)
+                Spacer(modifier = Modifier.height(45.dp))
+
+                Text(text = "Czerwony:", textAlign = TextAlign.Left, fontSize = 18.sp)
+                Slider(
+                    value = redValueBar.toFloat(),
+                    onValueChange = { redValueBar = it.toInt() },
+                    valueRange = 0f..255f,
+                    steps = 255
+                )
+
+                Spacer(modifier = Modifier.height(30.dp))
+                Text(text = "Niebieski:", textAlign = TextAlign.Left, fontSize = 18.sp)
+                Slider(
+                    value = blueValueBar.toFloat(),
+                    onValueChange = { blueValueBar = it.toInt() },
+                    valueRange = 0f..255f,
+                    steps = 255
+                )
+
+                Spacer(modifier = Modifier.height(30.dp))
+                Text(text = "Zielony:", textAlign = TextAlign.Left, fontSize = 18.sp)
+                Slider(
+                    value = greenValueBar.toFloat(),
+                    onValueChange = { greenValueBar = it.toInt() },
+                    valueRange = 0f..255f,
+                    steps = 255
+                )
+                Spacer(modifier = Modifier.height(30.dp))
+
+                Text(text = "Jasność:", textAlign = TextAlign.Left, fontSize = 18.sp)
+                Slider(
+                    value = brightness.toFloat(),
+                    onValueChange = { brightness = it.toInt() },
+                    valueRange = -20f..20f,
+                    steps = 40
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                redValue = redValueBar + brightness
+                greenValue = greenValueBar + brightness
+                blueValue = blueValueBar + brightness
+
+                if (redValue > 255){
+                    redValue = 255
+                }
+
+                if (greenValue > 255){
+                    greenValue = 255
+                }
+
+                if (blueValue > 255){
+                    blueValue = 255
+                }
+
+                if (redValue < 0){
+                    redValue = 0
+                }
+
+                if (greenValue < 0){
+                    greenValue = 0
+                }
+
+                if (blueValue < 0){
+                    blueValue = 0
+                }
+
+
+                Box(
+                    modifier = Modifier
+                        .size(200.dp)
+                        .background(
+                            Color(
+                                redValue,
+                                greenValue,
+                                blueValue
+                            )
+                        )
+                )
+            }
         }
     }
 }
+
 
 @Composable
 fun showLedList(ledAppFacade: LedAppFacade, navController: NavHostController) {
