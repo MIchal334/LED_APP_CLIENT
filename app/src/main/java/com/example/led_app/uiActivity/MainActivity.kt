@@ -37,7 +37,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
 
-//TODO TERAZ TRZABA DODAC FUNKCJNALNOSCI STRZELNIA DO SERWARA Z WYLACZNIEM LEDOW ALBO WGL Z USTWIEM NOWEGO MODE CZY TEZ KOLORU
+//TODO DODAC INFORMACJE O WLACZENIU CZY WYLACZENIU LED
 class MainActivity : ComponentActivity() {
 
     private val ledAppFacade: LedAppFacade = DaggerFacadeComponent.create().injectFacade()
@@ -68,6 +68,15 @@ fun Navigation(ledAppFacade: LedAppFacade) {
             val ledIp = backStackEntry.arguments?.getString("ledIp") ?: ""
             val ledName = backStackEntry.arguments?.getString("ledName") ?: ""
             LedScreen(ledAppFacade = ledAppFacade, navController = navController, ledIp, ledName)
+        }
+
+        composable(route = Screen.ColorScreen.route,
+            arguments = listOf(navArgument("ledIp") { type = NavType.StringType },
+                navArgument("ledName") { type = NavType.StringType }
+            )) { backStackEntry ->
+            val ledIp = backStackEntry.arguments?.getString("ledIp") ?: ""
+            val ledName = backStackEntry.arguments?.getString("ledName") ?: ""
+            ColorScreen(ledAppFacade = ledAppFacade, navController = navController, ledIp, ledName)
         }
     }
 }
@@ -209,7 +218,17 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
 
             ) {
                 ButtonToGoForward(
-                    onClick = {},
+                    onClick = {
+                        navController.navigate(
+                            Screen.ColorScreen.route.replace(
+                                oldValue = "{ledIp}",
+                                newValue = Uri.encode(ledIp)
+                            ).replace(
+                                oldValue = "{ledName}",
+                                newValue = ledName
+                            )
+                        )
+                    },
                     buttonText = ConstantsString.BUTTON_SET_NEW_COLOR,
                 )
                 Spacer(modifier = Modifier.height(30.dp))
@@ -245,6 +264,16 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                 )
             }
 
+        }
+    }
+}
+
+
+@Composable
+private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostController, ledIp: String, ledName: String) {
+    LED_APPTheme {
+        Column {
+            AppName(ConstantsString.APP_NAME + " : " + ledName)
         }
     }
 }
