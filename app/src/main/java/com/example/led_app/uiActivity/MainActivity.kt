@@ -57,6 +57,7 @@ fun Navigation(ledAppFacade: LedAppFacade) {
         composable(route = Screen.MainScreen.route) {
             MainScreen(ledAppFacade = ledAppFacade, navController = navController)
         }
+
         composable(route = Screen.AddNewLedScreen.route) {
             AddNewLedScreen(ledAppFacade = ledAppFacade, navController = navController)
         }
@@ -77,6 +78,10 @@ fun Navigation(ledAppFacade: LedAppFacade) {
             val ledIp = backStackEntry.arguments?.getString("ledIp") ?: ""
             val ledName = backStackEntry.arguments?.getString("ledName") ?: ""
             ColorScreen(ledAppFacade = ledAppFacade, navController = navController, ledIp, ledName)
+        }
+
+        composable(route = Screen.ChangeModeScreen.route) {
+            ChangeModeScreen(ledAppFacade = ledAppFacade, navController = navController)
         }
     }
 }
@@ -294,74 +299,40 @@ private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostContro
                 Text(text = "Ustaw Kolor:", textAlign = TextAlign.Left, fontSize = 30.sp)
                 Spacer(modifier = Modifier.height(45.dp))
 
-                Text(text = "Czerwony:", textAlign = TextAlign.Left, fontSize = 18.sp)
-                Slider(
-                    value = redValueBar.toFloat(),
-                    onValueChange = { redValueBar = it.toInt() },
-                    valueRange = 0f..255f,
-                    steps = 255
-                )
+                AddSliderWithText("Czerwony:", 0f, 255f, redValueBar) { newRed ->
+                    redValueBar = newRed
+                }
+
 
                 Spacer(modifier = Modifier.height(30.dp))
-                Text(text = "Niebieski:", textAlign = TextAlign.Left, fontSize = 18.sp)
-                Slider(
-                    value = blueValueBar.toFloat(),
-                    onValueChange = { blueValueBar = it.toInt() },
-                    valueRange = 0f..255f,
-                    steps = 255
-                )
+                AddSliderWithText("Niebieski:", 0f, 255f, blueValueBar) { newBlue ->
+                    blueValueBar = newBlue
+                }
 
                 Spacer(modifier = Modifier.height(30.dp))
-                Text(text = "Zielony:", textAlign = TextAlign.Left, fontSize = 18.sp)
-                Slider(
-                    value = greenValueBar.toFloat(),
-                    onValueChange = { greenValueBar = it.toInt() },
-                    valueRange = 0f..255f,
-                    steps = 255
-                )
-                Spacer(modifier = Modifier.height(30.dp))
+                AddSliderWithText("Zielony:", 0f, 255f, greenValueBar) { newGreen ->
+                    greenValueBar = newGreen
+                }
 
-                Text(text = "Jasność:", textAlign = TextAlign.Left, fontSize = 18.sp)
-                Slider(
-                    value = brightness.toFloat(),
-                    onValueChange = { brightness = it.toInt() },
-                    valueRange = -20f..20f,
-                    steps = 40
-                )
+                Spacer(modifier = Modifier.height(30.dp))
+                AddSliderWithText("Jasność:", -25f, 25f, brightness) { newBrightness ->
+                    brightness = newBrightness
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
+
                 redValue = redValueBar + brightness
                 greenValue = greenValueBar + brightness
                 blueValue = blueValueBar + brightness
 
-                if (redValue > 255){
-                    redValue = 255
-                }
-
-                if (greenValue > 255){
-                    greenValue = 255
-                }
-
-                if (blueValue > 255){
-                    blueValue = 255
-                }
-
-                if (redValue < 0){
-                    redValue = 0
-                }
-
-                if (greenValue < 0){
-                    greenValue = 0
-                }
-
-                if (blueValue < 0){
-                    blueValue = 0
-                }
-
+                redValue = checkColorValue(redValue)
+                greenValue = checkColorValue(greenValue)
+                blueValue = checkColorValue(blueValue)
 
                 Box(
                     modifier = Modifier
-                        .size(200.dp)
+                        .fillMaxWidth()
+                        .size(50.dp)
                         .background(
                             Color(
                                 redValue,
@@ -370,9 +341,40 @@ private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostContro
                             )
                         )
                 )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                ButtonToGoForward(
+                    onClick = {
+                        navController.navigate(Screen.ChangeModeScreen.route)
+                    },
+                    buttonText = ConstantsString.BUTTON_TURN_OFF_LED,
+                )
             }
         }
     }
+}
+
+
+@Composable
+private fun ChangeModeScreen(ledAppFacade: LedAppFacade, navController: NavHostController) {
+    LED_APPTheme {
+        Column {
+            AppName(ConstantsString.APP_NAME)
+            Spacer(modifier = Modifier.height(45.dp))
+        }
+    }
+}
+
+@Composable
+fun AddSliderWithText(text: String, min: Float, max: Float, currentValue: Int, value: (Int) -> Unit) {
+
+    Text(text = text, textAlign = TextAlign.Left, fontSize = 18.sp)
+    Slider(
+        value = currentValue.toFloat(),
+        onValueChange = { value(it.toInt()) },
+        valueRange = min..max,
+        steps = Math.abs(max - min).toInt()
+    )
 }
 
 
@@ -523,6 +525,16 @@ fun ButtonToGoForward(
         }
     }
 
+}
+
+fun checkColorValue(newColorValue: Int): Int {
+    if (newColorValue > 255) {
+        return 255
+    }
+    if (newColorValue < 0) {
+        return 0
+    }
+    return newColorValue
 }
 
 
