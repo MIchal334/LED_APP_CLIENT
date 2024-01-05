@@ -1,4 +1,4 @@
-package com.example.led_app.domain
+package com.example.led_app.application
 
 import com.example.led_app.ports.inbound.LedClient
 import com.example.led_app.ports.outbound.LedAppRepository

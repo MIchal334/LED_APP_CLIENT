@@ -30,7 +30,7 @@ interface ApiService {
 
 }
 
-//TODO UJEDNLISIC TO BO SIE FUNKCJNLANOSCI POWTARZAJA ZROBIC JEDNA METODE "doRequest"
+
 class LedClientSimulation : LedClient {
 
     override suspend fun getTestConnection(ipAddress: String): Boolean {

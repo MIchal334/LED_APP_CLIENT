@@ -31,7 +31,7 @@ import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
 import com.example.led_app.application.component.DaggerFacadeComponent
 import com.example.led_app.domain.ConstantsString
-import com.example.led_app.domain.LedAppFacade
+import com.example.led_app.application.LedAppFacade
 import com.example.led_app.ui.theme.LED_APPTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -296,8 +296,8 @@ private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostContro
                 var blueValueBar by remember { mutableStateOf(100) }
                 var brightness by remember { mutableStateOf(0) }
 
-                Text(text = "Ustaw Kolor:", textAlign = TextAlign.Left, fontSize = 30.sp)
-                Spacer(modifier = Modifier.height(45.dp))
+                Text(text = "Ustaw Kolor:", textAlign = TextAlign.Left, fontSize = 25.sp)
+                Spacer(modifier = Modifier.height(40.dp))
 
                 AddSliderWithText("Czerwony:", 0f, 255f, redValueBar) { newRed ->
                     redValueBar = newRed
@@ -332,7 +332,7 @@ private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostContro
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .size(50.dp)
+                        .size(60.dp)
                         .background(
                             Color(
                                 redValue,
@@ -347,7 +347,7 @@ private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostContro
                     onClick = {
                         navController.navigate(Screen.ChangeModeScreen.route)
                     },
-                    buttonText = ConstantsString.BUTTON_TURN_OFF_LED,
+                    buttonText = ConstantsString.BUTTON_CHOSE_CHANGE_MODE,
                 )
             }
         }

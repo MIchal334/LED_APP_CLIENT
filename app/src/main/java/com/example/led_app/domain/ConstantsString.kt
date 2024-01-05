@@ -15,6 +15,7 @@ object ConstantsString {
     const val BUTTON_CHOSE_MODES = "Wybierz tryb oświetlenia"
     const val BUTTON_UPDATE_DATA = "Uaktualnij dane LED"
     const val BUTTON_TURN_OFF_LED = "Wyłącz LED"
+    const val BUTTON_CHOSE_CHANGE_MODE = "TRYB PRZEJSCIA"
     const val ERROR_OCCURED = "Wystąpił błąd"
     const val LED_TURNED_OFF = "LED WYŁĄCZONY"
 

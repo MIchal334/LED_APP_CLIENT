@@ -1,7 +1,7 @@
 package com.example.led_app.application.component
 
 import com.example.led_app.application.module.FacadeModule
-import com.example.led_app.domain.LedAppFacade
+import com.example.led_app.application.LedAppFacade
 import dagger.Component
 import javax.inject.Singleton
 
