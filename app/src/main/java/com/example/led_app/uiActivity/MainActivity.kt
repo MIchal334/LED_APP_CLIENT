@@ -29,9 +29,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
+import com.example.led_app.application.LedAppFacade
 import com.example.led_app.application.component.DaggerFacadeComponent
 import com.example.led_app.domain.ConstantsString
-import com.example.led_app.application.LedAppFacade
 import com.example.led_app.ui.theme.LED_APPTheme
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
@@ -208,8 +208,10 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
 @Composable
 private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostController, ledIp: String, ledName: String) {
     val coroutineScope = rememberCoroutineScope()
-    var dialogTextTurnOff: String = ""
+    var dialogTextTurnOff = remember { mutableStateOf("") }
     val isTurnOffDialogVisible = remember { mutableStateOf(false) }
+    val isLoaderVisible = remember { mutableStateOf(true) }
+
     LED_APPTheme {
         Column {
             AppName(ConstantsString.APP_NAME + " : " + ledName)
@@ -235,38 +237,52 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                         )
                     },
                     buttonText = ConstantsString.BUTTON_SET_NEW_COLOR,
+                    isEnable = !isLoaderVisible.value
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 ButtonToGoForward(
                     onClick = {},
                     buttonText = ConstantsString.BUTTON_CHOSE_MODES,
+                    isEnable = !isLoaderVisible.value
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 ButtonToGoForward(
                     onClick = {},
                     buttonText = ConstantsString.BUTTON_UPDATE_DATA,
+                    isEnable = !isLoaderVisible.value
                 )
                 Spacer(modifier = Modifier.height(30.dp))
 
                 ButtonToGoForward(
                     onClick = {
                         coroutineScope.launch {
+                            //TODO MAKE LOADER HERE
                             val turnOff = ledAppFacade.turnOffLed(ledIp)
-                            //TODO FIX INFORMATION
+                            isLoaderVisible.value = true
                             if (turnOff) {
-                                dialogTextTurnOff = ConstantsString.LED_TURNED_OFF
+                                dialogTextTurnOff.value = ConstantsString.LED_TURNED_OFF
                                 isTurnOffDialogVisible.value = true
+                                isLoaderVisible.value = false
                             } else {
-                                dialogTextTurnOff = ConstantsString.ERROR_OCCURED
+                                dialogTextTurnOff.value = ConstantsString.ERROR_OCCURED
                                 isTurnOffDialogVisible.value = true
+                                isLoaderVisible.value = false
                             }
                         }
                     },
                     buttonText = ConstantsString.BUTTON_TURN_OFF_LED,
                     isVisible = isTurnOffDialogVisible,
                     dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
-                    dialogText = dialogTextTurnOff
+                    dialogText = dialogTextTurnOff.value,
+                    isEnable = !isLoaderVisible.value
                 )
+                // Call Loader
+                if (isLoaderVisible.value) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(64.dp).height(64.dp).align(Alignment.CenterHorizontally),
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
             }
 
         }
@@ -321,13 +337,10 @@ private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostContro
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                redValue = redValueBar + brightness
-                greenValue = greenValueBar + brightness
-                blueValue = blueValueBar + brightness
 
-                redValue = checkColorValue(redValue)
-                greenValue = checkColorValue(greenValue)
-                blueValue = checkColorValue(blueValue)
+                redValue = checkColorValue(redValueBar + brightness)
+                greenValue = checkColorValue(greenValueBar + brightness)
+                blueValue = checkColorValue(blueValueBar + brightness)
 
                 Box(
                     modifier = Modifier
@@ -505,10 +518,12 @@ fun ButtonToGoForward(
     buttonText: String,
     dialogText: String? = "Allert",
     dialogTitle: String? = "Allert",
-    isVisible: MutableState<Boolean>? = null
+    isVisible: MutableState<Boolean>? = null,
+    isEnable: Boolean? = true,
 ) {
     Button(
         onClick = onClick,
+        enabled = isEnable!!,
         modifier = Modifier
             .fillMaxWidth()
             .height(75.dp)

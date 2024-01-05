@@ -13,6 +13,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.PUT
 
+//TODO TOW OTHER ENTITY
 data class ServerResponse(
     val ledModes: List<OptionRequestData>,
     val changeModes: List<OptionRequestData>
