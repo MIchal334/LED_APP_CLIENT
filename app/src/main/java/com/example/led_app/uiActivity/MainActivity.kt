@@ -135,6 +135,7 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
     LED_APPTheme {
         var name by remember { mutableStateOf(TextFieldValue("")) }
         var address by remember { mutableStateOf(TextFieldValue("")) }
+        val isLoaderVisible = remember { mutableStateOf(false) }
         Column {
             AppName(ConstantsString.APP_NAME)
             Spacer(modifier = Modifier.fillMaxHeight(0.1f))
@@ -186,7 +187,9 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
             ButtonToGoForward(
                 onClick = {
                     coroutineScope.launch {
+                        isLoaderVisible.value = true
                         val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
+                        isLoaderVisible.value = false
                         if (isSaved) {
                             navController.navigate(Screen.MainScreen.route)
                         } else {
@@ -197,8 +200,13 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
                 buttonText = ConstantsString.BUTTON_ADD_NEW_LED,
                 isVisible = isDialogVisible,
                 dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
-                dialogText = ConstantsString.LED_SERVER_NOT_RESPONSE
+                dialogText = ConstantsString.LED_SERVER_NOT_RESPONSE,
+                isEnable = !isLoaderVisible.value
             )
+
+            if (isLoaderVisible.value) {
+                CircularProgressBar()
+            }
         }
     }
 }
@@ -210,7 +218,7 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
     val coroutineScope = rememberCoroutineScope()
     var dialogTextTurnOff = remember { mutableStateOf("") }
     val isTurnOffDialogVisible = remember { mutableStateOf(false) }
-    val isLoaderVisible = remember { mutableStateOf(true) }
+    val isLoaderVisible = remember { mutableStateOf(false) }
 
     LED_APPTheme {
         Column {
@@ -256,17 +264,16 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                 ButtonToGoForward(
                     onClick = {
                         coroutineScope.launch {
-                            //TODO MAKE LOADER HERE
-                            val turnOff = ledAppFacade.turnOffLed(ledIp)
                             isLoaderVisible.value = true
+                            val turnOff = ledAppFacade.turnOffLed(ledIp)
+                            isLoaderVisible.value = false
                             if (turnOff) {
                                 dialogTextTurnOff.value = ConstantsString.LED_TURNED_OFF
                                 isTurnOffDialogVisible.value = true
-                                isLoaderVisible.value = false
+
                             } else {
                                 dialogTextTurnOff.value = ConstantsString.ERROR_OCCURED
                                 isTurnOffDialogVisible.value = true
-                                isLoaderVisible.value = false
                             }
                         }
                     },
@@ -276,12 +283,8 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                     dialogText = dialogTextTurnOff.value,
                     isEnable = !isLoaderVisible.value
                 )
-                // Call Loader
                 if (isLoaderVisible.value) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.width(64.dp).height(64.dp).align(Alignment.CenterHorizontally),
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                    CircularProgressBar()
                 }
             }
 
@@ -289,7 +292,6 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
     }
 }
 
-//TODO SCREEN TO REFACTOR
 @Composable
 private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostController, ledIp: String, ledName: String) {
     var redValue = 0
@@ -418,6 +420,7 @@ fun AddLedButton(
 ) {
     val isDialogVisible = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val isLoaderVisible = remember { mutableStateOf(false) }
     return Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -426,7 +429,9 @@ fun AddLedButton(
         Button(
             onClick = {
                 coroutineScope.launch {
+                    isLoaderVisible.value = true
                     val connected = ledAppFacade.testConnectionWithServer(ledAddress)
+                    isLoaderVisible.value = false
                     if (connected) {
                         navController.navigate(
                             Screen.LedScreen.route.replace(
@@ -456,6 +461,9 @@ fun AddLedButton(
                     dialogText = ConstantsString.DIALOG_INFORMATION_LED_NOT_EXIST,
                     dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION
                 )
+            }
+            if (isLoaderVisible.value) {
+                CircularProgressBar()
             }
         }
     }
@@ -542,6 +550,20 @@ fun ButtonToGoForward(
 
 }
 
+
+@Composable
+fun CircularProgressBar(){
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+            CircularProgressIndicator(
+                modifier = Modifier.width(64.dp).height(64.dp),
+                color = MaterialTheme.colorScheme.secondary
+            )
+    }
+}
 fun checkColorValue(newColorValue: Int): Int {
     if (newColorValue > 255) {
         return 255
