@@ -77,11 +77,16 @@ fun Navigation(ledAppFacade: LedAppFacade) {
             )) { backStackEntry ->
             val ledIp = backStackEntry.arguments?.getString("ledIp") ?: ""
             val ledName = backStackEntry.arguments?.getString("ledName") ?: ""
-            ColorScreen(ledAppFacade = ledAppFacade, navController = navController, ledIp, ledName)
+            ColorScreen(navController = navController, ledIp, ledName)
         }
 
-        composable(route = Screen.ChangeModeScreen.route) {
-            ChangeModeScreen(ledAppFacade = ledAppFacade, navController = navController)
+        composable(route = Screen.ChangeModeScreen.route,
+            arguments = listOf(navArgument("ledIp") { type = NavType.StringType },
+                navArgument("ledName") { type = NavType.StringType }
+            )) { backStackEntry ->
+            val ledIp = backStackEntry.arguments?.getString("ledIp") ?: ""
+            val ledName = backStackEntry.arguments?.getString("ledName") ?: ""
+            ChangeModeScreen(ledAppFacade = ledAppFacade, navController = navController, ledIp, ledName)
         }
     }
 }
@@ -293,7 +298,7 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
 }
 
 @Composable
-private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostController, ledIp: String, ledName: String) {
+private fun ColorScreen(navController: NavHostController, ledIp: String, ledName: String) {
     var redValue = 0
     var greenValue = 0
     var blueValue = 0
@@ -371,7 +376,12 @@ private fun ColorScreen(ledAppFacade: LedAppFacade, navController: NavHostContro
 
 
 @Composable
-private fun ChangeModeScreen(ledAppFacade: LedAppFacade, navController: NavHostController) {
+private fun ChangeModeScreen(
+    ledAppFacade: LedAppFacade,
+    navController: NavHostController,
+    ledIp: String,
+    ledName: String
+) {
     LED_APPTheme {
         Column {
             AppName(ConstantsString.APP_NAME)
@@ -552,18 +562,19 @@ fun ButtonToGoForward(
 
 
 @Composable
-fun CircularProgressBar(){
+fun CircularProgressBar() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-            CircularProgressIndicator(
-                modifier = Modifier.width(64.dp).height(64.dp),
-                color = MaterialTheme.colorScheme.secondary
-            )
+        CircularProgressIndicator(
+            modifier = Modifier.width(64.dp).height(64.dp),
+            color = MaterialTheme.colorScheme.secondary
+        )
     }
 }
+
 fun checkColorValue(newColorValue: Int): Int {
     if (newColorValue > 255) {
         return 255

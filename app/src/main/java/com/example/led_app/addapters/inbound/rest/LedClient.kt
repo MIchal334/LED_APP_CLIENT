@@ -2,8 +2,9 @@ import android.util.Log
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.LedData
-import com.example.led_app.domain.OptionRequestData
+import com.example.led_app.domain.LedModeData
 import com.example.led_app.ports.inbound.LedClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -15,8 +16,8 @@ import retrofit2.http.PUT
 
 //TODO TOW OTHER ENTITY
 data class ServerResponse(
-    val ledModes: List<OptionRequestData>,
-    val changeModes: List<OptionRequestData>
+    val ledModes: List<LedModeData>,
+    val changeModes: List<ChangeModeData>
 )
 
 interface ApiService {
