@@ -1,5 +1,7 @@
 package com.example.led_app.addapters.outbound
 
+import android.content.res.Resources.NotFoundException
+import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.LedData
 import com.example.led_app.ports.outbound.LedAppRepository
 import javax.inject.Inject
@@ -16,4 +18,13 @@ class LedAppRepositoryInMemory @Inject constructor() : LedAppRepository {
         this.ledList.add(ledToSave)
         return true;
     }
+
+    override fun getChangeModeByLedName(ledName: String): List<ChangeModeData> {
+        val foundLed = ledList.find { it.ledName == ledName }
+            ?: throw NotFoundException("Nie znaleziono LED o nazwie: $ledName")
+
+        return foundLed.changeModes
+    }
+
+
 }

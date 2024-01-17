@@ -1,5 +1,6 @@
 package com.example.led_app.application
 
+import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.ports.inbound.LedClient
 import com.example.led_app.ports.outbound.LedAppRepository
 import javax.inject.Inject
@@ -23,6 +24,10 @@ class LedAppFacade @Inject constructor(private val ledRepository: LedAppReposito
             { false },
             { data -> ledRepository.saveNewLed(data) }
         )
+    }
+
+    fun getChangesModeByName(ledName: String): List<ChangeModeData> {
+       return ledRepository.getChangeModeByLedName(ledName);
     }
 
 }

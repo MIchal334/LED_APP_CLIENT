@@ -382,10 +382,12 @@ private fun ChangeModeScreen(
     ledIp: String,
     ledName: String
 ) {
+    val changesModeList = ledAppFacade.getChangesModeByName(ledName)
     LED_APPTheme {
         Column {
             AppName(ConstantsString.APP_NAME)
             Spacer(modifier = Modifier.height(45.dp))
+
         }
     }
 }
