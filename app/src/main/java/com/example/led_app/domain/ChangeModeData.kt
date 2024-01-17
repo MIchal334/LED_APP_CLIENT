@@ -2,6 +2,6 @@ package com.example.led_app.domain
 
 data class ChangeModeData(
     val optionName: String,
-    val internalServerNumber: Int
+    val changeServerId: Int
 )
 
