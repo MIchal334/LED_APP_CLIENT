@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.led_app.application.LedAppFacade
 import com.example.led_app.application.component.DaggerFacadeComponent
+import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.ConstantsString
 import com.example.led_app.domain.NewColorRequest
 import com.example.led_app.ui.theme.LED_APPTheme
@@ -400,7 +401,10 @@ private fun ChangeModeScreen(
     val changesModeList = ledAppFacade.getChangesModeByName(requestBuilder.getLedName())
     LED_APPTheme {
         Column {
-            var selectedTiles: String? by remember { mutableStateOf(null) }
+            var selectedMode: ChangeModeData? by remember { mutableStateOf(null) }
+            var dialogTextSendRequest = remember { mutableStateOf("") }
+            val isRequestDialogVisible = remember { mutableStateOf(false) }
+            val isLoaderVisible = remember { mutableStateOf(false) }
 
             AppName(ConstantsString.APP_NAME + " : " + requestBuilder.getLedName())
             Spacer(modifier = Modifier.height(45.dp))
@@ -408,18 +412,31 @@ private fun ChangeModeScreen(
                 items(changesModeList) { changeMode ->
                     CheckboxTileItem(
                         tile = changeMode.optionName,
-                        isSelected = changeMode.optionName.equals(selectedTiles),
-                        onSelectedChange = { isSelected ->
-                            selectedTiles = changeMode.optionName
+                        isSelected = changeMode == selectedMode,
+                        onSelectedChange = {
+                            selectedMode = changeMode
                         }
                     )
                 }
             }
             Spacer(modifier = Modifier.height(45.dp))
-            Text(
-                text = selectedTiles.toString(),
-                modifier = Modifier.padding(all = 4.dp)
+
+            ButtonToGoForward(
+                onClick = {
+                        if (selectedMode != null){
+                            isRequestDialogVisible.value = false
+                        }else{
+                            dialogTextSendRequest.value =  ConstantsString.CHANGE_OPTION_NEEDED_TO_CHOOSE
+                            isRequestDialogVisible.value = true
+                        }
+                },
+                buttonText = ConstantsString.SEND_REQUEST,
+                isVisible = isRequestDialogVisible,
+                dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
+                dialogText = dialogTextSendRequest.value,
+                isEnable = !isLoaderVisible.value
             )
+
         }
     }
 }
