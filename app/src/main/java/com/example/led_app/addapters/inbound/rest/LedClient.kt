@@ -8,7 +8,7 @@ import com.example.led_app.application.ports.inbound.dto.ColorRequestDto
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.LedData
 import com.example.led_app.domain.LedModeData
-import com.example.led_app.domain.NewColorRequest
+import com.example.led_app.domain.NewServerRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
@@ -59,11 +59,11 @@ class LedClientSimulation : LedClient {
         return tryTurnOffLed(ipAddress)
     }
 
-    override suspend fun sendColorRequest(colorRequest: NewColorRequest): Boolean {
+    override suspend fun sendColorRequest(colorRequest: NewServerRequest): Boolean {
         return trySendColorRequest(colorRequest)
     }
 
-    private suspend fun trySendColorRequest(colorRequest: NewColorRequest): Boolean {
+    private suspend fun trySendColorRequest(colorRequest: NewServerRequest): Boolean {
 
         try {
             val response = withContext(Dispatchers.IO) {

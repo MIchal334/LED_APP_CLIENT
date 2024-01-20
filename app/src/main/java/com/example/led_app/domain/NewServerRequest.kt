@@ -7,7 +7,7 @@ import androidx.navigation.NavType
 import com.google.gson.Gson
 import kotlinx.parcelize.Parcelize
 
-data class NewColorRequest(
+data class NewServerRequest(
     override var ledIp: String,
     override var ledName: String,
     var redValue: Int,
@@ -51,7 +51,7 @@ data class NewColorRequest(
         fun withGreenValue(greenValue: Int) = apply { this.greenValue = greenValue }
         fun withChangeModeServerId(changeServerId: Int) = apply { this.changeModeServerId = changeServerId }
 
-        fun build() = NewColorRequest(ledIp, ledName, redValue, blueValue, greenValue, changeModeServerId)
+        fun build() = NewServerRequest(ledIp, ledName, redValue, blueValue, greenValue, changeModeServerId)
     }
 
 

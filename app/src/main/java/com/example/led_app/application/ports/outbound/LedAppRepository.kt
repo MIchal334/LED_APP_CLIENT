@@ -10,4 +10,7 @@ interface LedAppRepository {
     fun saveNewLed(ledToSave: LedData): Boolean
 
     fun getChangeModeByLedName(ledName:String): List<ChangeModeData>
+    fun deleteLed(ledName: String)
+
+    fun updateLed(ledData: LedData): Boolean
 }

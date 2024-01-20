@@ -34,7 +34,7 @@ import com.example.led_app.application.LedAppFacade
 import com.example.led_app.application.component.DaggerFacadeComponent
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.ConstantsString
-import com.example.led_app.domain.NewColorRequest
+import com.example.led_app.domain.NewServerRequest
 import com.example.led_app.ui.theme.LED_APPTheme
 import com.google.gson.Gson
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -77,20 +77,20 @@ fun Navigation(ledAppFacade: LedAppFacade) {
         composable(
             route = Screen.ColorScreen.route,
             arguments = listOf(navArgument("requestBuilder") {
-                type = NewColorRequest.BuilderType()
+                type = NewServerRequest.BuilderType()
             })
         ) { backStackEntry ->
-            val requestBuilder = backStackEntry.arguments?.getParcelable<NewColorRequest.Builder>("requestBuilder")
+            val requestBuilder = backStackEntry.arguments?.getParcelable<NewServerRequest.Builder>("requestBuilder")
             ColorScreen(navController = navController, requestBuilder!!)
         }
 
         composable(
             route = Screen.ChangeModeScreen.route,
             arguments = listOf(navArgument("requestBuilder") {
-                type = NewColorRequest.BuilderType()
+                type = NewServerRequest.BuilderType()
             })
         ) { backStackEntry ->
-            val requestBuilder = backStackEntry.arguments?.getParcelable<NewColorRequest.Builder>("requestBuilder")
+            val requestBuilder = backStackEntry.arguments?.getParcelable<NewServerRequest.Builder>("requestBuilder")
             ChangeModeScreen(ledAppFacade = ledAppFacade, navController = navController, requestBuilder!!)
         }
     }
@@ -226,9 +226,12 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
 @Composable
 private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostController, ledIp: String, ledName: String) {
     val coroutineScope = rememberCoroutineScope()
-    var dialogTextTurnOff = remember { mutableStateOf("") }
-    val isTurnOffDialogVisible = remember { mutableStateOf(false) }
+    var dialogText = remember { mutableStateOf("") }
+    val isDialogVisible = remember { mutableStateOf(false) }
     val isLoaderVisible = remember { mutableStateOf(false) }
+    val requestBuilder =
+        NewServerRequest.Builder("", "", 0, 0, 0, 0)
+            .withLedName(ledName).withLedIp(ledIp)
 
     LED_APPTheme {
         Column {
@@ -244,11 +247,7 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
             ) {
                 ButtonToGoForward(
                     onClick = {
-                        val requestBuilder =
-                            NewColorRequest.Builder("", "", 0, 0, 0, 0)
-                                .withLedName(ledName).withLedIp(ledIp)
                         val jsonRequestBuilder = Uri.encode(Gson().toJson(requestBuilder))
-
                         navController.navigate(
                             Screen.ColorScreen.route.replace(
                                 oldValue = "{requestBuilder}",
@@ -261,15 +260,30 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 ButtonToGoForward(
-                    onClick = {},
+                    onClick = {
+
+                    },
                     buttonText = ConstantsString.BUTTON_CHOSE_MODES,
                     isEnable = !isLoaderVisible.value
                 )
                 Spacer(modifier = Modifier.height(30.dp))
                 ButtonToGoForward(
-                    onClick = {},
+                    onClick = {
+                        coroutineScope.launch {
+                        isLoaderVisible.value = true
+                        val isSaved = ledAppFacade.updateLedConfig(ledName, ledIp)
+                        isLoaderVisible.value = false
+                        if (isSaved) {
+                            dialogText.value = ConstantsString.LED_UPDATED
+                        } else {
+                            dialogText.value = ConstantsString.ERROR_OCCURED
+                        }
+                    }},
                     buttonText = ConstantsString.BUTTON_UPDATE_DATA,
-                    isEnable = !isLoaderVisible.value
+                    isEnable = !isLoaderVisible.value ,
+                    dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
+                    dialogText = dialogText.value,
+                    isVisible = isDialogVisible,
                 )
                 Spacer(modifier = Modifier.height(30.dp))
 
@@ -280,19 +294,19 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                             val turnOff = ledAppFacade.turnOffLed(ledIp)
                             isLoaderVisible.value = false
                             if (turnOff) {
-                                dialogTextTurnOff.value = ConstantsString.LED_TURNED_OFF
-                                isTurnOffDialogVisible.value = true
+                                dialogText.value = ConstantsString.LED_TURNED_OFF
+                                isDialogVisible.value = true
 
                             } else {
-                                dialogTextTurnOff.value = ConstantsString.ERROR_OCCURED
-                                isTurnOffDialogVisible.value = true
+                                dialogText.value = ConstantsString.ERROR_OCCURED
+                                isDialogVisible.value = true
                             }
                         }
                     },
                     buttonText = ConstantsString.BUTTON_TURN_OFF_LED,
-                    isVisible = isTurnOffDialogVisible,
+                    isVisible = isDialogVisible,
                     dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
-                    dialogText = dialogTextTurnOff.value,
+                    dialogText = dialogText.value,
                     isEnable = !isLoaderVisible.value
                 )
                 if (isLoaderVisible.value) {
@@ -305,7 +319,7 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
 }
 
 @Composable
-private fun ColorScreen(navController: NavHostController, requestBuilder: NewColorRequest.Builder) {
+private fun ColorScreen(navController: NavHostController, requestBuilder: NewServerRequest.Builder) {
     var redValue = 0
     var greenValue = 0
     var blueValue = 0
@@ -396,7 +410,7 @@ private fun ColorScreen(navController: NavHostController, requestBuilder: NewCol
 private fun ChangeModeScreen(
     ledAppFacade: LedAppFacade,
     navController: NavHostController,
-    requestBuilder: NewColorRequest.Builder
+    requestBuilder: NewServerRequest.Builder
 ) {
     val changesModeList = ledAppFacade.getChangesModeByName(requestBuilder.getLedName())
     LED_APPTheme {
@@ -427,14 +441,22 @@ private fun ChangeModeScreen(
 
                     if (selectedMode != null) {
                         isRequestDialogVisible.value = false
-                        val colorRequest: NewColorRequest =
+                        val serverRequest: NewServerRequest =
                             requestBuilder.withChangeModeServerId(selectedMode?.changeModeServerId!!).build()
                         coroutineScope.launch {
                             isLoaderVisible.value = true
-                            val sentSuccessful = ledAppFacade.sendColorRequest(colorRequest)
+                            val sentSuccessful = ledAppFacade.sendColorRequest(serverRequest)
                             isLoaderVisible.value = false
                             if (sentSuccessful) {
-
+                                navController.navigate(
+                                    Screen.LedScreen.route.replace(
+                                        oldValue = "{ledIp}",
+                                        newValue = serverRequest.ledIp
+                                    ).replace(
+                                        oldValue = "{ledName}",
+                                        newValue = serverRequest.ledName
+                                    )
+                                )
                             } else {
                                 dialogTextSendRequest.value = ConstantsString.SEND_ERROR_OCCURED
                                 isRequestDialogVisible.value = true

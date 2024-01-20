@@ -2,7 +2,7 @@ package com.example.led_app.application.ports.inbound
 
 import arrow.core.Either
 import com.example.led_app.domain.LedData
-import com.example.led_app.domain.NewColorRequest
+import com.example.led_app.domain.NewServerRequest
 
 interface LedClient {
     suspend fun getTestConnection(ipAddress: String): Boolean
@@ -13,6 +13,6 @@ interface LedClient {
 
     suspend fun turnOffLed(ipAddress: String): Boolean
 
-    suspend fun sendColorRequest(colorRequest: NewColorRequest): Boolean
+    suspend fun sendColorRequest(colorRequest: NewServerRequest): Boolean
 
 }

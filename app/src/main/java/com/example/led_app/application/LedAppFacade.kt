@@ -1,9 +1,9 @@
 package com.example.led_app.application
 
-import com.example.led_app.domain.ChangeModeData
-import com.example.led_app.domain.NewColorRequest
 import com.example.led_app.application.ports.inbound.LedClient
 import com.example.led_app.application.ports.outbound.LedAppRepository
+import com.example.led_app.domain.ChangeModeData
+import com.example.led_app.domain.NewServerRequest
 import javax.inject.Inject
 
 class LedAppFacade @Inject constructor(private val ledRepository: LedAppRepository, private val ledClient: LedClient) {
@@ -27,11 +27,20 @@ class LedAppFacade @Inject constructor(private val ledRepository: LedAppReposito
         )
     }
 
+
+    suspend fun updateLedConfig(ledName: String, ledIpAddress: String): Boolean {
+        val result = ledClient.getServerConfiguration(ledName, ledIpAddress)
+        return result.fold(
+            { false },
+            { data ->
+                ledRepository.updateLed(data) }
+        )
+    }
     fun getChangesModeByName(ledName: String): List<ChangeModeData> {
        return ledRepository.getChangeModeByLedName(ledName);
     }
 
-    suspend fun sendColorRequest(colorRequest: NewColorRequest): Boolean {
+    suspend fun sendColorRequest(colorRequest: NewServerRequest): Boolean {
         return ledClient.sendColorRequest(colorRequest)
     }
 

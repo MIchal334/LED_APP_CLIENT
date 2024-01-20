@@ -1,9 +1,9 @@
 package com.example.led_app.addapters.outbound
 
 import android.content.res.Resources.NotFoundException
+import com.example.led_app.application.ports.outbound.LedAppRepository
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.LedData
-import com.example.led_app.application.ports.outbound.LedAppRepository
 import javax.inject.Inject
 import kotlin.streams.toList
 
@@ -24,6 +24,15 @@ class LedAppRepositoryInMemory @Inject constructor() : LedAppRepository {
             ?: throw NotFoundException("Nie znaleziono LED o nazwie: $ledName")
 
         return foundLed.changeModes
+    }
+
+    override fun deleteLed(ledName: String) {
+        ledList.removeIf { it.ledName == ledName }
+    }
+
+    override fun updateLed(ledData: LedData): Boolean {
+        deleteLed(ledData.ledName)
+        return saveNewLed(ledData)
     }
 
 
