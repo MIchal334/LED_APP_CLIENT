@@ -401,6 +401,7 @@ private fun ChangeModeScreen(
     val changesModeList = ledAppFacade.getChangesModeByName(requestBuilder.getLedName())
     LED_APPTheme {
         Column {
+            val coroutineScope = rememberCoroutineScope()
             var selectedMode: ChangeModeData? by remember { mutableStateOf(null) }
             var dialogTextSendRequest = remember { mutableStateOf("") }
             val isRequestDialogVisible = remember { mutableStateOf(false) }
@@ -423,12 +424,27 @@ private fun ChangeModeScreen(
 
             ButtonToGoForward(
                 onClick = {
-                        if (selectedMode != null){
-                            isRequestDialogVisible.value = false
-                        }else{
-                            dialogTextSendRequest.value =  ConstantsString.CHANGE_OPTION_NEEDED_TO_CHOOSE
-                            isRequestDialogVisible.value = true
+
+                    if (selectedMode != null) {
+                        isRequestDialogVisible.value = false
+                        val colorRequest: NewColorRequest =
+                            requestBuilder.withChangeModeServerId(selectedMode?.changeModeServerId!!).build()
+                        coroutineScope.launch {
+                            isLoaderVisible.value = true
+                            val sentSuccessful = ledAppFacade.sendColorRequest(colorRequest)
+                            isLoaderVisible.value = false
+                            if (sentSuccessful) {
+
+                            } else {
+                                dialogTextSendRequest.value = ConstantsString.SEND_ERROR_OCCURED
+                                isRequestDialogVisible.value = true
+                            }
                         }
+
+                    } else {
+                        dialogTextSendRequest.value = ConstantsString.CHANGE_OPTION_NEEDED_TO_CHOOSE
+                        isRequestDialogVisible.value = true
+                    }
                 },
                 buttonText = ConstantsString.SEND_REQUEST,
                 isVisible = isRequestDialogVisible,

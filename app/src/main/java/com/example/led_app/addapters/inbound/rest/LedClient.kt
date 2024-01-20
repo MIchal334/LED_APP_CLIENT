@@ -5,13 +5,16 @@ import arrow.core.right
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.LedData
 import com.example.led_app.domain.LedModeData
+import com.example.led_app.domain.NewColorRequest
 import com.example.led_app.ports.inbound.LedClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.PUT
 
 //TODO TOW OTHER ENTITY
@@ -29,6 +32,9 @@ interface ApiService {
 
     @PUT("off")
     fun turnOffLed(): Call<Void>
+
+    @POST("colorRequest")
+    fun sendNewColorRequest(@Body requestBody: NewColorRequest): Call<Void>
 
 }
 
@@ -49,6 +55,29 @@ class LedClientSimulation : LedClient {
     override suspend fun turnOffLed(ipAddress: String): Boolean {
         return tryTurnOffLed(ipAddress)
     }
+
+    override suspend fun sendColorRequest(colorRequest: NewColorRequest): Boolean {
+        return trySendColorRequest(colorRequest)
+    }
+
+    private suspend fun trySendColorRequest(colorRequest: NewColorRequest): Boolean {
+
+        try {
+            val response = withContext(Dispatchers.IO) {
+                prepareRestClient(colorRequest.ledIp).sendNewColorRequest(colorRequest).execute()
+            }
+            if (response.code() == 201) {
+                Log.i("Response from server", "Color request sended.")
+                return true
+            }
+            return false
+        } catch (e: Exception) {
+            Log.i("Response from server", "NOT CONNECTION")
+            return false
+        }
+
+    }
+
 
     private suspend fun tryTurnOffLed(ipAddress: String): Boolean {
         try {

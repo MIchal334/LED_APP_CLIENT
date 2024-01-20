@@ -20,7 +20,7 @@ object ConstantsString {
     const val LED_TURNED_OFF = "LED WYŁĄCZONY"
     const val CHANGE_OPTION_NEEDED_TO_CHOOSE = "Wybierz opcje przejscia"
     const val SEND_REQUEST = "Wyslij rzadanie"
-
+    const val SEND_ERROR_OCCURED = "Wystąpił błąd podczas wysylania rzadania"
 
 
 }

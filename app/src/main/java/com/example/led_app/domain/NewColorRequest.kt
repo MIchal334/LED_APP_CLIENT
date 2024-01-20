@@ -54,9 +54,7 @@ data class NewColorRequest(
         fun build() = NewColorRequest(ledIp, ledName, redValue, blueValue, greenValue, changeModeServerId)
     }
 
-    override fun sendRequest(): Boolean {
-        TODO("Not yet implemented")
-    }
+
 }
 
 
