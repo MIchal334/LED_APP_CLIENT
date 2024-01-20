@@ -73,13 +73,14 @@ fun Navigation(ledAppFacade: LedAppFacade) {
             LedScreen(ledAppFacade = ledAppFacade, navController = navController, ledIp, ledName)
         }
 
-        composable(route = Screen.ColorScreen.route,
-            arguments = listOf(navArgument("ledIp") { type = NavType.StringType },
-                navArgument("ledName") { type = NavType.StringType }
-            )) { backStackEntry ->
-            val ledIp = backStackEntry.arguments?.getString("ledIp") ?: ""
-            val ledName = backStackEntry.arguments?.getString("ledName") ?: ""
-            ColorScreen(navController = navController, ledIp, ledName)
+        composable(
+            route = Screen.ColorScreen.route,
+            arguments = listOf(navArgument("requestBuilder") {
+                type = NewColorRequest.BuilderType()
+            })
+        ) { backStackEntry ->
+            val requestBuilder = backStackEntry.arguments?.getParcelable<NewColorRequest.Builder>("requestBuilder")
+            ColorScreen(navController = navController, requestBuilder!!)
         }
 
         composable(
@@ -242,13 +243,15 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
             ) {
                 ButtonToGoForward(
                     onClick = {
+                        val requestBuilder =
+                            NewColorRequest.Builder("", "", 0, 0, 0, 0)
+                                .withLedName(ledName).withLedIp(Uri.encode(ledIp))
+                        val jsonRequestBuilder = Uri.encode(Gson().toJson(requestBuilder))
+
                         navController.navigate(
                             Screen.ColorScreen.route.replace(
-                                oldValue = "{ledIp}",
-                                newValue = Uri.encode(ledIp)
-                            ).replace(
-                                oldValue = "{ledName}",
-                                newValue = ledName
+                                oldValue = "{requestBuilder}",
+                                newValue = jsonRequestBuilder
                             )
                         )
                     },
@@ -301,13 +304,13 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
 }
 
 @Composable
-private fun ColorScreen(navController: NavHostController, ledIp: String, ledName: String) {
+private fun ColorScreen(navController: NavHostController, requestBuilder: NewColorRequest.Builder) {
     var redValue = 0
     var greenValue = 0
     var blueValue = 0
     LED_APPTheme {
         Column {
-            AppName(ConstantsString.APP_NAME + " : " + ledName)
+            AppName(ConstantsString.APP_NAME + " : " + requestBuilder.getLedName())
             Spacer(modifier = Modifier.height(45.dp))
 
             Column(
@@ -368,11 +371,8 @@ private fun ColorScreen(navController: NavHostController, ledIp: String, ledName
                 Spacer(modifier = Modifier.height(16.dp))
                 ButtonToGoForward(
                     onClick = {
-                        val requestBuilder =
-                            NewColorRequest.Builder("", "", 0, 0, 0, 0)
-                                .withLedName(ledName).withLedIp(Uri.encode(ledIp))
-                                .withRedValue(redValue)
-                                .withGreenValue(greenValue).withBlueValue(blueValue)
+                        requestBuilder.withRedValue(redValue)
+                            .withGreenValue(greenValue).withBlueValue(blueValue)
 
                         val jsonRequestBuilder = Uri.encode(Gson().toJson(requestBuilder))
 
