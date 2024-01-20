@@ -2,8 +2,8 @@ package com.example.led_app.application.module
 
 import LedClientSimulation
 import com.example.led_app.addapters.outbound.LedAppRepositoryInMemory
-import com.example.led_app.ports.inbound.LedClient
-import com.example.led_app.ports.outbound.LedAppRepository
+import com.example.led_app.application.ports.inbound.LedClient
+import com.example.led_app.application.ports.outbound.LedAppRepository
 import dagger.Module
 import dagger.Provides
 

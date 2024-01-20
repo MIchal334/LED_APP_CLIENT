@@ -3,7 +3,7 @@ package com.example.led_app.addapters.outbound
 import android.content.res.Resources.NotFoundException
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.LedData
-import com.example.led_app.ports.outbound.LedAppRepository
+import com.example.led_app.application.ports.outbound.LedAppRepository
 import javax.inject.Inject
 import kotlin.streams.toList
 

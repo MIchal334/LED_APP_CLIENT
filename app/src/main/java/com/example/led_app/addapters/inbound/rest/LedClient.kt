@@ -1,12 +1,14 @@
+
 import android.util.Log
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import com.example.led_app.application.ports.inbound.LedClient
+import com.example.led_app.application.ports.inbound.dto.ColorRequestDto
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.LedData
 import com.example.led_app.domain.LedModeData
 import com.example.led_app.domain.NewColorRequest
-import com.example.led_app.ports.inbound.LedClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
@@ -34,7 +36,7 @@ interface ApiService {
     fun turnOffLed(): Call<Void>
 
     @POST("colorRequest")
-    fun sendNewColorRequest(@Body requestBody: NewColorRequest): Call<Void>
+    fun sendNewColorRequest(@Body requestBody: ColorRequestDto): Call<Void>
 
 }
 
@@ -64,7 +66,7 @@ class LedClientSimulation : LedClient {
 
         try {
             val response = withContext(Dispatchers.IO) {
-                prepareRestClient(colorRequest.ledIp).sendNewColorRequest(colorRequest).execute()
+                prepareRestClient(colorRequest.ledIp).sendNewColorRequest(ColorRequestDto.of(colorRequest)).execute()
             }
             if (response.code() == 201) {
                 Log.i("Response from server", "Color request sended.")

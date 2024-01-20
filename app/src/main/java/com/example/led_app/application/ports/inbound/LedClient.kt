@@ -1,4 +1,4 @@
-package com.example.led_app.ports.inbound
+package com.example.led_app.application.ports.inbound
 
 import arrow.core.Either
 import com.example.led_app.domain.LedData

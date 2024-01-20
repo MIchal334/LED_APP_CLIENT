@@ -1,4 +1,4 @@
-package com.example.led_app.ports.outbound
+package com.example.led_app.application.ports.outbound
 
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.LedData

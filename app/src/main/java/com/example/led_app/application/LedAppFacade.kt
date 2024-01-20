@@ -2,8 +2,8 @@ package com.example.led_app.application
 
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.NewColorRequest
-import com.example.led_app.ports.inbound.LedClient
-import com.example.led_app.ports.outbound.LedAppRepository
+import com.example.led_app.application.ports.inbound.LedClient
+import com.example.led_app.application.ports.outbound.LedAppRepository
 import javax.inject.Inject
 
 class LedAppFacade @Inject constructor(private val ledRepository: LedAppRepository, private val ledClient: LedClient) {
