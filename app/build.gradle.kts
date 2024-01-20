@@ -2,6 +2,8 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
+    id("kotlin-parcelize")
+    id("kotlin-android")
 }
 
 
@@ -78,7 +80,7 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("com.google.dagger:dagger:2.48")
     implementation("org.danilopianini:khttp:1.4.2")
-    implementation("androidx.navigation:navigation-compose:2.4.0-alpha04")
+    implementation("androidx.navigation:navigation-compose:2.5.3")
     implementation("com.google.code.gson:gson:2.7")
     kapt("com.google.dagger:dagger-compiler:2.48")
     implementation("io.arrow-kt:arrow-core:0.13.2")

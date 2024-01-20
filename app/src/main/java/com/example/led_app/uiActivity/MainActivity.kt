@@ -28,15 +28,16 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.led_app.application.LedAppFacade
 import com.example.led_app.application.component.DaggerFacadeComponent
 import com.example.led_app.domain.ConstantsString
+import com.example.led_app.domain.NewColorRequest
 import com.example.led_app.ui.theme.LED_APPTheme
+import com.google.gson.Gson
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
-
 
 
 class MainActivity : ComponentActivity() {
@@ -81,13 +82,14 @@ fun Navigation(ledAppFacade: LedAppFacade) {
             ColorScreen(navController = navController, ledIp, ledName)
         }
 
-        composable(route = Screen.ChangeModeScreen.route,
-            arguments = listOf(navArgument("ledIp") { type = NavType.StringType },
-                navArgument("ledName") { type = NavType.StringType }
-            )) { backStackEntry ->
-            val ledIp = backStackEntry.arguments?.getString("ledIp") ?: ""
-            val ledName = backStackEntry.arguments?.getString("ledName") ?: ""
-            ChangeModeScreen(ledAppFacade = ledAppFacade, navController = navController, ledIp, ledName)
+        composable(
+            route = Screen.ChangeModeScreen.route,
+            arguments = listOf(navArgument("requestBuilder") {
+                type = NewColorRequest.BuilderType()
+            })
+        ) { backStackEntry ->
+            val requestBuilder = backStackEntry.arguments?.getParcelable<NewColorRequest.Builder>("requestBuilder")
+            ChangeModeScreen(ledAppFacade = ledAppFacade, navController = navController, requestBuilder!!)
         }
     }
 }
@@ -366,13 +368,18 @@ private fun ColorScreen(navController: NavHostController, ledIp: String, ledName
                 Spacer(modifier = Modifier.height(16.dp))
                 ButtonToGoForward(
                     onClick = {
+                        val requestBuilder =
+                            NewColorRequest.Builder("", "", 0, 0, 0, 0)
+                                .withLedName(ledName).withLedIp(Uri.encode(ledIp))
+                                .withRedValue(redValue)
+                                .withGreenValue(greenValue).withBlueValue(blueValue)
+
+                        val jsonRequestBuilder = Uri.encode(Gson().toJson(requestBuilder))
+
                         navController.navigate(
                             Screen.ChangeModeScreen.route.replace(
-                                oldValue = "{ledIp}",
-                                newValue = Uri.encode(ledIp)
-                            ).replace(
-                                oldValue = "{ledName}",
-                                newValue = ledName
+                                oldValue = "{requestBuilder}",
+                                newValue = jsonRequestBuilder
                             )
                         )
                     },
@@ -388,15 +395,14 @@ private fun ColorScreen(navController: NavHostController, ledIp: String, ledName
 private fun ChangeModeScreen(
     ledAppFacade: LedAppFacade,
     navController: NavHostController,
-    ledIp: String,
-    ledName: String
+    requestBuilder: NewColorRequest.Builder
 ) {
-    val changesModeList = ledAppFacade.getChangesModeByName(ledName)
+    val changesModeList = ledAppFacade.getChangesModeByName(requestBuilder.getLedName())
     LED_APPTheme {
         Column {
             var selectedTiles: String? by remember { mutableStateOf(null) }
 
-            AppName(ConstantsString.APP_NAME + " : " + ledName)
+            AppName(ConstantsString.APP_NAME + " : " + requestBuilder.getLedName())
             Spacer(modifier = Modifier.height(45.dp))
             LazyColumn {
                 items(changesModeList) { changeMode ->
