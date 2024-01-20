@@ -5,6 +5,6 @@ sealed class Screen(val route: String){
     object AddNewLedScreen: Screen("add_led_screen")
     object LedScreen: Screen("led_screen/{ledIp}/{ledName}")
     object ColorScreen: Screen("color_screen/{ledIp}/{ledName}")
-    object ChangeModeScreen: Screen("change_mode_screen")
+    object ChangeModeScreen: Screen("change_mode_screen/{ledIp}/{ledName}")
 
 }

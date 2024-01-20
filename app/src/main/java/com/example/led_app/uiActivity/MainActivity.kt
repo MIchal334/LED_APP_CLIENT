@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,7 +38,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.launch
 
 
-//TODO DODAC INFORMACJE O WLACZENIU CZY WYLACZENIU LED
+
 class MainActivity : ComponentActivity() {
 
     private val ledAppFacade: LedAppFacade = DaggerFacadeComponent.create().injectFacade()
@@ -365,7 +366,15 @@ private fun ColorScreen(navController: NavHostController, ledIp: String, ledName
                 Spacer(modifier = Modifier.height(16.dp))
                 ButtonToGoForward(
                     onClick = {
-                        navController.navigate(Screen.ChangeModeScreen.route)
+                        navController.navigate(
+                            Screen.ChangeModeScreen.route.replace(
+                                oldValue = "{ledIp}",
+                                newValue = Uri.encode(ledIp)
+                            ).replace(
+                                oldValue = "{ledName}",
+                                newValue = ledName
+                            )
+                        )
                     },
                     buttonText = ConstantsString.BUTTON_CHOSE_CHANGE_MODE,
                 )
@@ -385,10 +394,49 @@ private fun ChangeModeScreen(
     val changesModeList = ledAppFacade.getChangesModeByName(ledName)
     LED_APPTheme {
         Column {
-            AppName(ConstantsString.APP_NAME)
-            Spacer(modifier = Modifier.height(45.dp))
+            var selectedTiles: String? by remember { mutableStateOf(null) }
 
+            AppName(ConstantsString.APP_NAME + " : " + ledName)
+            Spacer(modifier = Modifier.height(45.dp))
+            LazyColumn {
+                items(changesModeList) { changeMode ->
+                    CheckboxTileItem(
+                        tile = changeMode.optionName,
+                        isSelected = changeMode.optionName.equals(selectedTiles),
+                        onSelectedChange = { isSelected ->
+                            selectedTiles = changeMode.optionName
+                        }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(45.dp))
+            Text(
+                text = selectedTiles.toString(),
+                modifier = Modifier.padding(all = 4.dp)
+            )
         }
+    }
+}
+
+@Composable
+fun CheckboxTileItem(tile: String, isSelected: Boolean, onSelectedChange: (Boolean) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+            .clickable { onSelectedChange(!isSelected) },
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            checked = isSelected,
+            onCheckedChange = { onSelectedChange(it) },
+            modifier = Modifier.padding(end = 16.dp)
+        )
+        Text(
+            text = tile,
+            fontWeight = FontWeight.Bold,
+            fontSize = 16.sp
+        )
     }
 }
 
