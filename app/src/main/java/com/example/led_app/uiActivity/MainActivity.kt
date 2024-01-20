@@ -246,7 +246,7 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                     onClick = {
                         val requestBuilder =
                             NewColorRequest.Builder("", "", 0, 0, 0, 0)
-                                .withLedName(ledName).withLedIp(Uri.encode(ledIp))
+                                .withLedName(ledName).withLedIp(ledIp)
                         val jsonRequestBuilder = Uri.encode(Gson().toJson(requestBuilder))
 
                         navController.navigate(
@@ -535,7 +535,7 @@ fun AddLedButton(
                         navController.navigate(
                             Screen.LedScreen.route.replace(
                                 oldValue = "{ledIp}",
-                                newValue = Uri.encode(ledAddress)
+                                newValue = ledAddress
                             ).replace(
                                 oldValue = "{ledName}",
                                 newValue = ledName

@@ -1,4 +1,4 @@
-
+import android.net.Uri
 import android.util.Log
 import arrow.core.Either
 import arrow.core.left
@@ -35,13 +35,14 @@ interface ApiService {
     @PUT("off")
     fun turnOffLed(): Call<Void>
 
-    @POST("colorRequest")
+    @POST("color")
     fun sendNewColorRequest(@Body requestBody: ColorRequestDto): Call<Void>
 
 }
 
 
 class LedClientSimulation : LedClient {
+    val httpAddressTemplate = "http://%s/"
 
     override suspend fun getTestConnection(ipAddress: String): Boolean {
         return testConnectionRequest(ipAddress)
@@ -66,15 +67,17 @@ class LedClientSimulation : LedClient {
 
         try {
             val response = withContext(Dispatchers.IO) {
-                prepareRestClient(colorRequest.ledIp).sendNewColorRequest(ColorRequestDto.of(colorRequest)).execute()
+                prepareRestClient(Uri.decode(colorRequest.ledIp)).sendNewColorRequest(ColorRequestDto.of(colorRequest))
+                    .execute()
             }
             if (response.code() == 201) {
                 Log.i("Response from server", "Color request sended.")
                 return true
             }
+            Log.i("Response from server", "Something went wrong")
             return false
         } catch (e: Exception) {
-            Log.i("Response from server", "NOT CONNECTION")
+            Log.i("Response from server", "SEND COLOR REQUEST UNSUCCESFULL. CODE" + e)
             return false
         }
 
@@ -99,6 +102,7 @@ class LedClientSimulation : LedClient {
 
     private suspend fun testConnectionRequest(ipAddress: String): Boolean {
         try {
+
             val response = withContext(Dispatchers.IO) {
                 prepareRestClient(ipAddress).getTest().execute()
             }
@@ -139,7 +143,7 @@ class LedClientSimulation : LedClient {
 
     private fun prepareRestClient(ipAddress: String): ApiService {
         return Retrofit.Builder()
-            .baseUrl(ipAddress + "/")
+            .baseUrl(httpAddressTemplate.format(ipAddress))
             .addConverterFactory(MoshiConverterFactory.create())
             .build().create(ApiService::class.java)
     }
