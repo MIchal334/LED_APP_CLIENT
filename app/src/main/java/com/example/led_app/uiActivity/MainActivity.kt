@@ -104,6 +104,16 @@ fun Navigation(ledAppFacade: LedAppFacade) {
             val requestBuilder = backStackEntry.arguments?.getParcelable<NewServerRequest.Builder>("requestBuilder")
             LedModeScreen(ledAppFacade = ledAppFacade, navController = navController, requestBuilder!!)
         }
+
+        composable(
+            route = Screen.LedModeColorScreen.route,
+            arguments = listOf(navArgument("requestBuilder") {
+                type = NewServerRequest.BuilderType()
+            })
+        ) { backStackEntry ->
+            val requestBuilder = backStackEntry.arguments?.getParcelable<NewServerRequest.Builder>("requestBuilder")
+            LedModeColorScreen(ledAppFacade = ledAppFacade, navController = navController, requestBuilder!!)
+        }
     }
 }
 
@@ -288,11 +298,13 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                     onClick = {
                         coroutineScope.launch {
                             isLoaderVisible.value = true
-                            val isSaved = ledAppFacade.updateLedConfig(ledName, ledIp)
+                            val isUpdated = ledAppFacade.updateLedConfig(ledName, ledIp)
                             isLoaderVisible.value = false
-                            if (isSaved) {
+                            if (isUpdated) {
+                                isDialogVisible.value = true
                                 dialogText.value = ConstantsString.LED_UPDATED
                             } else {
+                                isDialogVisible.value = true
                                 dialogText.value = ConstantsString.ERROR_OCCURED
                             }
                         }
@@ -533,12 +545,19 @@ private fun LedModeScreen(
 
                     if (selectedMode != null) {
                         isRequestDialogVisible.value = false
-                        val serverRequest: NewServerRequest =
-                            requestBuilder.withChangeModeServerId(selectedMode?.modeServerId!!).build()
+                        requestBuilder.withChangeModeServerId(selectedMode?.modeServerId!!)
 
                         if (selectedMode?.setColor!!) {
-
+                            val jsonRequestBuilder = Uri.encode(Gson().toJson(requestBuilder))
+                            navController.navigate(
+                                Screen.LedModeColorScreen.route.replace(
+                                    oldValue = "{requestBuilder}",
+                                    newValue = jsonRequestBuilder
+                                )
+                            )
                         } else {
+                            val serverRequest: NewServerRequest = requestBuilder.build()
+
                             coroutineScope.launch {
                                 isLoaderVisible.value = true
                                 val sentSuccessful = ledAppFacade.sendModeRequest(serverRequest)
@@ -572,6 +591,116 @@ private fun LedModeScreen(
                 isEnable = !isLoaderVisible.value
             )
 
+        }
+    }
+}
+
+@Composable
+private fun LedModeColorScreen(
+    ledAppFacade: LedAppFacade,
+    navController: NavHostController,
+    requestBuilder: NewServerRequest.Builder
+) {
+    var redValue = 0
+    var greenValue = 0
+    var blueValue = 0
+    LED_APPTheme {
+        Column {
+            val coroutineScope = rememberCoroutineScope()
+            var dialogTextSendRequest = remember { mutableStateOf("") }
+            val isRequestDialogVisible = remember { mutableStateOf(false) }
+            val isLoaderVisible = remember { mutableStateOf(false) }
+
+            AppName(ConstantsString.APP_NAME + " : " + requestBuilder.getLedName())
+            Spacer(modifier = Modifier.height(45.dp))
+
+            Column(
+                modifier = Modifier
+                    .padding(20.dp)
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                var redValueBar by remember { mutableStateOf(100) }
+                var greenValueBar by remember { mutableStateOf(100) }
+                var blueValueBar by remember { mutableStateOf(100) }
+                var brightness by remember { mutableStateOf(0) }
+
+                Text(text = "Ustaw Kolor:", textAlign = TextAlign.Left, fontSize = 25.sp)
+                Spacer(modifier = Modifier.height(40.dp))
+
+                AddSliderWithText("Czerwony:", 0f, 255f, redValueBar) { newRed ->
+                    redValueBar = newRed
+                }
+
+
+                Spacer(modifier = Modifier.height(30.dp))
+                AddSliderWithText("Niebieski:", 0f, 255f, blueValueBar) { newBlue ->
+                    blueValueBar = newBlue
+                }
+
+                Spacer(modifier = Modifier.height(30.dp))
+                AddSliderWithText("Zielony:", 0f, 255f, greenValueBar) { newGreen ->
+                    greenValueBar = newGreen
+                }
+
+                Spacer(modifier = Modifier.height(30.dp))
+                AddSliderWithText("Jasność:", -25f, 25f, brightness) { newBrightness ->
+                    brightness = newBrightness
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+
+                redValue = checkColorValue(redValueBar + brightness)
+                greenValue = checkColorValue(greenValueBar + brightness)
+                blueValue = checkColorValue(blueValueBar + brightness)
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .size(60.dp)
+                        .background(
+                            Color(
+                                redValue,
+                                greenValue,
+                                blueValue
+                            )
+                        )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                ButtonToGoForward(
+                    onClick = {
+                        val serverRequest: NewServerRequest = requestBuilder.withRedValue(redValue)
+                            .withGreenValue(greenValue).withBlueValue(blueValue).build()
+                        coroutineScope.launch {
+                            isLoaderVisible.value = true
+                            val sentSuccessful = ledAppFacade.sendModeRequest(serverRequest)
+                            isLoaderVisible.value = false
+                            if (sentSuccessful) {
+                                navController.navigate(
+                                    Screen.LedScreen.route.replace(
+                                        oldValue = "{ledIp}",
+                                        newValue = serverRequest.ledIp
+                                    ).replace(
+                                        oldValue = "{ledName}",
+                                        newValue = serverRequest.ledName
+                                    )
+                                )
+                            } else {
+                                dialogTextSendRequest.value = ConstantsString.SEND_ERROR_OCCURED
+                                isRequestDialogVisible.value = true
+                            }
+                        }
+                    },
+                    buttonText = ConstantsString.SEND_REQUEST,
+                    isVisible = isRequestDialogVisible,
+                    dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
+                    dialogText = dialogTextSendRequest.value,
+                    isEnable = !isLoaderVisible.value
+                )
+            }
         }
     }
 }

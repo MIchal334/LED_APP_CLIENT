@@ -8,5 +8,6 @@ sealed class Screen(val route: String){
     object ChangeModeScreen: Screen("changeModeScreen/{requestBuilder}")
 
     object LedModeScreen: Screen("ledModeScreen/{requestBuilder}")
+    object LedModeColorScreen: Screen("ledModeColorScreen/{requestBuilder}")
 
 }
