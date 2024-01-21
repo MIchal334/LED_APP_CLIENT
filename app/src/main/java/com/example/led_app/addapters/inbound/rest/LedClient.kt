@@ -38,11 +38,15 @@ interface ApiService {
     @POST("color")
     fun sendNewColorRequest(@Body requestBody: ColorRequestDto): Call<Void>
 
+    @POST("mode")
+    fun sendNewModeRequest(@Body requestBody: ColorRequestDto): Call<Void>
+
 }
 
 
 class LedClientSimulation : LedClient {
-    val httpAddressTemplate = "http://%s/"
+
+    private val httpAddressTemplate = "http://%s/"
 
     override suspend fun getTestConnection(ipAddress: String): Boolean {
         return testConnectionRequest(ipAddress)
@@ -63,6 +67,10 @@ class LedClientSimulation : LedClient {
         return trySendColorRequest(colorRequest)
     }
 
+    override suspend fun sendModeRequest(colorRequest: NewServerRequest): Boolean {
+        return trySendModeRequest(colorRequest)
+    }
+
     private suspend fun trySendColorRequest(colorRequest: NewServerRequest): Boolean {
 
         try {
@@ -78,6 +86,27 @@ class LedClientSimulation : LedClient {
             return false
         } catch (e: Exception) {
             Log.i("Response from server", "SEND COLOR REQUEST UNSUCCESFULL. CODE" + e)
+            return false
+        }
+
+    }
+
+
+    private suspend fun trySendModeRequest(colorRequest: NewServerRequest): Boolean {
+
+        try {
+            val response = withContext(Dispatchers.IO) {
+                prepareRestClient(Uri.decode(colorRequest.ledIp)).sendNewModeRequest(ColorRequestDto.of(colorRequest))
+                    .execute()
+            }
+            if (response.code() == 201) {
+                Log.i("Response from server", "Mode request sent.")
+                return true
+            }
+            Log.i("Response from server", "Something went wrong")
+            return false
+        } catch (e: Exception) {
+            Log.i("Response from server", "SEND MODE REQUEST UNSUCCESFULL. CODE" + e)
             return false
         }
 

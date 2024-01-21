@@ -15,4 +15,6 @@ interface LedClient {
 
     suspend fun sendColorRequest(colorRequest: NewServerRequest): Boolean
 
+    suspend fun sendModeRequest(colorRequest: NewServerRequest): Boolean
+
 }

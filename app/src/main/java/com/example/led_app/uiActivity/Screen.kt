@@ -7,4 +7,6 @@ sealed class Screen(val route: String){
     object ColorScreen: Screen("color_screen/{requestBuilder}")
     object ChangeModeScreen: Screen("changeModeScreen/{requestBuilder}")
 
+    object LedModeScreen: Screen("ledModeScreen/{requestBuilder}")
+
 }

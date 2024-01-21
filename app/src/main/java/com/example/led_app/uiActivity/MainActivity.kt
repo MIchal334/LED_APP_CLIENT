@@ -34,6 +34,7 @@ import com.example.led_app.application.LedAppFacade
 import com.example.led_app.application.component.DaggerFacadeComponent
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.ConstantsString
+import com.example.led_app.domain.LedModeData
 import com.example.led_app.domain.NewServerRequest
 import com.example.led_app.ui.theme.LED_APPTheme
 import com.google.gson.Gson
@@ -92,6 +93,16 @@ fun Navigation(ledAppFacade: LedAppFacade) {
         ) { backStackEntry ->
             val requestBuilder = backStackEntry.arguments?.getParcelable<NewServerRequest.Builder>("requestBuilder")
             ChangeModeScreen(ledAppFacade = ledAppFacade, navController = navController, requestBuilder!!)
+        }
+
+        composable(
+            route = Screen.LedModeScreen.route,
+            arguments = listOf(navArgument("requestBuilder") {
+                type = NewServerRequest.BuilderType()
+            })
+        ) { backStackEntry ->
+            val requestBuilder = backStackEntry.arguments?.getParcelable<NewServerRequest.Builder>("requestBuilder")
+            LedModeScreen(ledAppFacade = ledAppFacade, navController = navController, requestBuilder!!)
         }
     }
 }
@@ -261,7 +272,13 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                 Spacer(modifier = Modifier.height(30.dp))
                 ButtonToGoForward(
                     onClick = {
-
+                        val jsonRequestBuilder = Uri.encode(Gson().toJson(requestBuilder))
+                        navController.navigate(
+                            Screen.LedModeScreen.route.replace(
+                                oldValue = "{requestBuilder}",
+                                newValue = jsonRequestBuilder
+                            )
+                        )
                     },
                     buttonText = ConstantsString.BUTTON_CHOSE_MODES,
                     isEnable = !isLoaderVisible.value
@@ -270,17 +287,18 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                 ButtonToGoForward(
                     onClick = {
                         coroutineScope.launch {
-                        isLoaderVisible.value = true
-                        val isSaved = ledAppFacade.updateLedConfig(ledName, ledIp)
-                        isLoaderVisible.value = false
-                        if (isSaved) {
-                            dialogText.value = ConstantsString.LED_UPDATED
-                        } else {
-                            dialogText.value = ConstantsString.ERROR_OCCURED
+                            isLoaderVisible.value = true
+                            val isSaved = ledAppFacade.updateLedConfig(ledName, ledIp)
+                            isLoaderVisible.value = false
+                            if (isSaved) {
+                                dialogText.value = ConstantsString.LED_UPDATED
+                            } else {
+                                dialogText.value = ConstantsString.ERROR_OCCURED
+                            }
                         }
-                    }},
+                    },
                     buttonText = ConstantsString.BUTTON_UPDATE_DATA,
-                    isEnable = !isLoaderVisible.value ,
+                    isEnable = !isLoaderVisible.value,
                     dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
                     dialogText = dialogText.value,
                     isVisible = isDialogVisible,
@@ -478,6 +496,86 @@ private fun ChangeModeScreen(
         }
     }
 }
+
+
+@Composable
+private fun LedModeScreen(
+    ledAppFacade: LedAppFacade,
+    navController: NavHostController,
+    requestBuilder: NewServerRequest.Builder
+) {
+    val ledModeList = ledAppFacade.getLedModeByName(requestBuilder.getLedName())
+    LED_APPTheme {
+        Column {
+            val coroutineScope = rememberCoroutineScope()
+            var selectedMode: LedModeData? by remember { mutableStateOf(null) }
+            var dialogTextSendRequest = remember { mutableStateOf("") }
+            val isRequestDialogVisible = remember { mutableStateOf(false) }
+            val isLoaderVisible = remember { mutableStateOf(false) }
+
+            AppName(ConstantsString.APP_NAME + " : " + requestBuilder.getLedName())
+            Spacer(modifier = Modifier.height(45.dp))
+            LazyColumn {
+                items(ledModeList) { mode ->
+                    CheckboxTileItem(
+                        tile = mode.optionName,
+                        isSelected = mode == selectedMode,
+                        onSelectedChange = {
+                            selectedMode = mode
+                        }
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(45.dp))
+
+            ButtonToGoForward(
+                onClick = {
+
+                    if (selectedMode != null) {
+                        isRequestDialogVisible.value = false
+                        val serverRequest: NewServerRequest =
+                            requestBuilder.withChangeModeServerId(selectedMode?.modeServerId!!).build()
+
+                        if (selectedMode?.setColor!!) {
+
+                        } else {
+                            coroutineScope.launch {
+                                isLoaderVisible.value = true
+                                val sentSuccessful = ledAppFacade.sendModeRequest(serverRequest)
+                                isLoaderVisible.value = false
+                                if (sentSuccessful) {
+                                    navController.navigate(
+                                        Screen.LedScreen.route.replace(
+                                            oldValue = "{ledIp}",
+                                            newValue = serverRequest.ledIp
+                                        ).replace(
+                                            oldValue = "{ledName}",
+                                            newValue = serverRequest.ledName
+                                        )
+                                    )
+                                } else {
+                                    dialogTextSendRequest.value = ConstantsString.SEND_ERROR_OCCURED
+                                    isRequestDialogVisible.value = true
+                                }
+                            }
+                        }
+
+                    } else {
+                        dialogTextSendRequest.value = ConstantsString.CHANGE_OPTION_NEEDED_TO_CHOOSE
+                        isRequestDialogVisible.value = true
+                    }
+                },
+                buttonText = ConstantsString.SEND_REQUEST,
+                isVisible = isRequestDialogVisible,
+                dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
+                dialogText = dialogTextSendRequest.value,
+                isEnable = !isLoaderVisible.value
+            )
+
+        }
+    }
+}
+
 
 @Composable
 fun CheckboxTileItem(tile: String, isSelected: Boolean, onSelectedChange: (Boolean) -> Unit) {
