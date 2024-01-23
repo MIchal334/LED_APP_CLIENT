@@ -6,6 +6,7 @@ import arrow.core.right
 import com.example.led_app.application.ports.inbound.LedClient
 import com.example.led_app.application.ports.inbound.dto.ColorRequestDto
 import com.example.led_app.domain.ChangeModeData
+import com.example.led_app.domain.ConstantsString.LED_SERVER_NOT_RESPONSE
 import com.example.led_app.domain.LedData
 import com.example.led_app.domain.LedModeData
 import com.example.led_app.domain.NewServerRequest
@@ -162,11 +163,11 @@ class LedClientSimulation : LedClient {
 
             } else {
                 Log.i("Response from server", "Unsuccessful response: ${response.code()}")
-                RuntimeException("Not connection").left()
+                RuntimeException(LED_SERVER_NOT_RESPONSE).left()
             }
         } catch (e: Exception) {
             Log.e("Response from server", "Request failed: $e", e)
-            RuntimeException("Not connection").left()
+            RuntimeException(LED_SERVER_NOT_RESPONSE).left()
         }
     }
 

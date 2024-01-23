@@ -2,6 +2,7 @@ package com.example.led_app.application
 
 import com.example.led_app.application.ports.inbound.LedClient
 import com.example.led_app.application.ports.outbound.LedAppRepository
+import com.example.led_app.application.validators.LedDataValidator
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.LedModeData
 import com.example.led_app.domain.NewServerRequest
@@ -20,11 +21,17 @@ class LedAppFacade @Inject constructor(private val ledRepository: LedAppReposito
         return ledClient.getTestConnection(ledIpAddress)
     }
 
-    suspend fun saveNewLed(ledName: String, ledIpAddress: String): Boolean {
+    suspend fun saveNewLed(ledName: String, ledIpAddress: String): Pair<Boolean, String> {
+
+        val isValid = LedDataValidator.valid(ledName, ledIpAddress, ledRepository.getAllKnownServerNameAddress().map { it.first })
+        if (!isValid.first) {
+            return Pair(isValid.first, isValid.second)
+        }
+
         val result = ledClient.getServerConfiguration(ledName, ledIpAddress)
         return result.fold(
-            { false },
-            { data -> ledRepository.saveNewLed(data) }
+            { Pair(false, it.message!!) },
+            { data -> Pair(ledRepository.saveNewLed(data), "") }
         )
     }
 
@@ -34,11 +41,13 @@ class LedAppFacade @Inject constructor(private val ledRepository: LedAppReposito
         return result.fold(
             { false },
             { data ->
-                ledRepository.updateLed(data) }
+                ledRepository.updateLed(data)
+            }
         )
     }
+
     fun getChangesModeByName(ledName: String): List<ChangeModeData> {
-       return ledRepository.getChangeModeByLedName(ledName);
+        return ledRepository.getChangeModeByLedName(ledName);
     }
 
     fun getLedModeByName(ledName: String): List<LedModeData> {

@@ -167,6 +167,7 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
         var name by remember { mutableStateOf(TextFieldValue("")) }
         var address by remember { mutableStateOf(TextFieldValue("")) }
         val isLoaderVisible = remember { mutableStateOf(false) }
+        var dialogText = remember { mutableStateOf("") }
         Column {
             AppName(ConstantsString.APP_NAME)
             Spacer(modifier = Modifier.fillMaxHeight(0.1f))
@@ -221,9 +222,10 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
                         isLoaderVisible.value = true
                         val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
                         isLoaderVisible.value = false
-                        if (isSaved) {
+                        if (isSaved.first) {
                             navController.navigate(Screen.MainScreen.route)
                         } else {
+                            dialogText.value = isSaved.second
                             isDialogVisible.value = true
                         }
                     }
@@ -231,7 +233,7 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
                 buttonText = ConstantsString.BUTTON_ADD_NEW_LED,
                 isVisible = isDialogVisible,
                 dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
-                dialogText = ConstantsString.LED_SERVER_NOT_RESPONSE,
+                dialogText = dialogText.value,
                 isEnable = !isLoaderVisible.value
             )
 
