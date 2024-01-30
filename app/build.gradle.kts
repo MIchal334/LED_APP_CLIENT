@@ -48,6 +48,22 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
+
+    buildFeatures {
+        buildConfig = true
+    }
+
+    // https://developer.android.com/build/build-variants
+    flavorDimensions += listOf("mode")
+    productFlavors {
+        create("api") {
+            dimension = "mode"
+        }
+
+        create("stub") {
+            dimension = "mode"
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
