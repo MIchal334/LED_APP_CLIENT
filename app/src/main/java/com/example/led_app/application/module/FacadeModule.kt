@@ -7,22 +7,23 @@ import com.example.led_app.BuildConfig
 import com.example.led_app.application.ports.inbound.LedClient
 import com.example.led_app.application.ports.outbound.LedAppRepository
 import com.example.led_app.config.AppDatabase
-import dagger.Binds
-import dagger.BindsInstance
 import dagger.Module
 import dagger.Provides
 
 @Module
-class FacadeModule() {
+class FacadeModule(val applicationContext: Context) {
+    val db: AppDatabase
 
-    @BindsInstance
-    abstract fun application(app: YourApp): Context
-    @Provides
-    fun provideLedRepository(): LedAppRepository {
-        val db = Room.databaseBuilder(
+    init {
+        db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "database-name"
         ).build()
+    }
+
+    @Provides
+    fun provideLedRepository(): LedAppRepository {
+        return db.ledRepository()
     }
 
     @Provides
@@ -32,4 +33,6 @@ class FacadeModule() {
         }
         return LedClientSimulation()
     }
+
+
 }

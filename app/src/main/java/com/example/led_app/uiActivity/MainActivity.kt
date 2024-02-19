@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.led_app.application.LedAppFacade
 import com.example.led_app.application.component.DaggerFacadeComponent
+import com.example.led_app.application.module.FacadeModule
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.ConstantsString
 import com.example.led_app.domain.LedModeData
@@ -44,11 +45,13 @@ import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
 
-    private val ledAppFacade: LedAppFacade = DaggerFacadeComponent
-        .create().injectFacade()
+    private lateinit var ledAppFacade: LedAppFacade
+//    private val ledAppFacade: LedAppFacade = DaggerFacadeComponent
+//        .create().injectFacade()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        ledAppFacade = DaggerFacadeComponent.builder().facadeModule(FacadeModule(this)).build().injectFacade()
         setContent {
             Navigation(ledAppFacade)
         }
