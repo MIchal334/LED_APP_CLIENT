@@ -1,32 +1,24 @@
-package com.example.led_app.addapters.outbound
-
 import androidx.room.Dao
-import com.example.led_app.application.ports.outbound.LedAppRepository
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.Query
+import com.example.led_app.domain.User
 
 @Dao
-interface LedAppSqlRepository  : LedAppRepository {
+interface UserDao {
+    @Query("SELECT * FROM user")
+    fun getAll(): List<User>
 
-//    @Query("SELECT * FROM led_data")
-//    override fun getAllKnownServerNameAddress(): List<Pair<String, String>>
-//    override fun saveNewLed(ledToSave: LedData): Boolean {
-//
-//    }
-//
-//    override fun getChangeModeByLedName(ledName: String): List<ChangeModeData> {
-//
-//    }
-//
-//    override fun getModeByLedName(ledName: String): List<LedModeData> {
-//
-//    }
-//
-//    override fun deleteLed(ledName: String) {
-//
-//    }
-//
-//    override fun updateLed(ledData: LedData): Boolean {
-//
-//    }
+    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
+    fun loadAllByIds(userIds: IntArray): List<User>
 
+    @Query("SELECT * FROM user WHERE first_name LIKE :first AND " +
+            "last_name LIKE :last LIMIT 1")
+    fun findByName(first: String, last: String): User
 
+    @Insert
+    fun insertAll(vararg users: User)
+
+    @Delete
+    fun delete(user: User)
 }

@@ -1,13 +1,8 @@
-package com.example.led_app.config
-
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import com.example.led_app.addapters.outbound.LedAppSqlRepository
-import com.example.led_app.domain.LedData
+import com.example.led_app.domain.User
 
-//@Database(entities = [LedData::class], version = 1, exportSchema = false)
-//abstract class AppDatabase : RoomDatabase() {
-//
-//    abstract fun ledRepository(): LedAppSqlRepository
-//
-//}
+@Database(entities = [User::class], version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun userDao(): UserDao
+}
