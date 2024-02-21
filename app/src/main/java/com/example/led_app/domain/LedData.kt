@@ -6,7 +6,7 @@ import ServerResponse
 class LedData(
     val ledName: String = "A",
     val ipAddress: String = "127.0.0.1",
-    val ledModes: List<LedModeData> = listOf(LedModeData("rain", 1)),
+    val ledModes: List<LedModeData> = listOf(LedModeData(1, 1, "rain", 1)),
     val changeModes: List<ChangeModeData> = listOf(ChangeModeData("snake", 1))
 ) {
 
