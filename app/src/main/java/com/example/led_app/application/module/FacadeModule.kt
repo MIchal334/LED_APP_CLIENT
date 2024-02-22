@@ -11,14 +11,10 @@ import dagger.Provides
 
 @Module
 class FacadeModule(val applicationContext: Context) {
-//    val db: AppDatabase
-//
-//    init {
-//        db = Room.databaseBuilder(
-//            applicationContext,
-//            AppDatabase::class.java, "database-name"
-//        ).build()
-//    }
+//    val db: AppDatabase = Room.databaseBuilder(
+//        applicationContext,
+//        AppDatabase::class.java, "database-name"
+//    ).build()
 
     @Provides
     fun provideLedRepository(): LedAppRepository {

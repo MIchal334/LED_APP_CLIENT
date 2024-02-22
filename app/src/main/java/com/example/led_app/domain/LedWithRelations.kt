@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 
 data class LedWithRelations(
-    @Embedded val led: LedTest,
+    @Embedded val led: Led,
     @Relation(
         parentColumn = "uid",
         entityColumn = "ledId"
@@ -16,4 +16,13 @@ data class LedWithRelations(
         entityColumn = "ledId"
     )
     val changeModes: List<ChangeModeData>
-)
+) {
+    companion object {
+        fun buildBaseLedData(ledData: LedData): LedWithRelations {
+            return LedWithRelations(
+                Led.buildBaseOnLedData(ledData.ledName, ledData.ipAddress),
+                ledData.ledModes, ledData.changeModes
+            )
+        }
+    }
+}
