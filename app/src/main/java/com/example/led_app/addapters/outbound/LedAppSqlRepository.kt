@@ -1,26 +1,28 @@
 
 import androidx.room.Dao
 import androidx.room.Insert
-import com.example.led_app.application.ports.outbound.LedAppRepositoryTest
+import androidx.room.Transaction
+import com.example.led_app.domain.ChangeModeData
+import com.example.led_app.domain.LedModeData
 import com.example.led_app.domain.LedTest
+import com.example.led_app.domain.LedWithRelations
 
 @Dao
-interface LedDao : LedAppRepositoryTest{
+interface LedDao {
+
+    @Transaction
+    fun saveLed(ledWithRelations: LedWithRelations) {
+        insertLedTest(ledWithRelations.led)
+        insertModes(ledWithRelations.ledModes)
+        insertAnotherEntities(ledWithRelations.changeModes)
+    }
+
     @Insert
-    override fun saveNewLed(ledToSave: LedTest): Long
-    //    @Query("SELECT * FROM ledtest")
-//    fun getAll(): List<LedTest>
-//
-//    @Query("SELECT * FROM ledtest WHERE uid IN (:userIds)")
-//    fun loadAllByIds(userIds: IntArray): List<LedTest>
-//
-//    @Query("SELECT * FROM ledtest WHERE first_name LIKE :first AND " +
-//            "last_name LIKE :last LIMIT 1")
-//    fun findByName(first: String, last: String): LedTest
-//
-//    @Insert
-//    fun insertAll(vararg ledTests: LedTest)
-//
-//    @Delete
-//    fun delete(ledTest: LedTest)
+    fun insertLedTest(ledTest: LedTest)
+
+    @Insert
+    fun insertModes(modes: List<LedModeData>)
+
+    @Insert
+    fun insertAnotherEntities(anotherEntities: List<ChangeModeData>)
 }

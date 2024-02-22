@@ -7,7 +7,7 @@ class LedData(
     val ledName: String = "A",
     val ipAddress: String = "127.0.0.1",
     val ledModes: List<LedModeData> = listOf(LedModeData(1, 1, "rain", 1)),
-    val changeModes: List<ChangeModeData> = listOf(ChangeModeData("snake", 1))
+    val changeModes: List<ChangeModeData> = listOf(ChangeModeData(1, 1, "snake", 1))
 ) {
 
     companion object {
