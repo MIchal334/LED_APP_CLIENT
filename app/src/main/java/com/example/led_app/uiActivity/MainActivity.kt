@@ -46,8 +46,6 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private lateinit var ledAppFacade: LedAppFacade
-//    private val ledAppFacade: LedAppFacade = DaggerFacadeComponent
-//        .create().injectFacade()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

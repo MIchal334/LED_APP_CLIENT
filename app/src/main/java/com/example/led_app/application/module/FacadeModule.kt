@@ -1,9 +1,10 @@
 package com.example.led_app.application.module
 
+import AppDatabase
 import LedClientSimulation
 import android.content.Context
+import androidx.room.Room
 import com.example.led_app.BuildConfig
-import com.example.led_app.addapters.outbound.LedAppRepositoryInMemory
 import com.example.led_app.application.ports.inbound.LedClient
 import com.example.led_app.application.ports.outbound.LedAppRepository
 import dagger.Module
@@ -11,14 +12,18 @@ import dagger.Provides
 
 @Module
 class FacadeModule(val applicationContext: Context) {
-//    val db: AppDatabase = Room.databaseBuilder(
-//        applicationContext,
-//        AppDatabase::class.java, "database-name"
-//    ).build()
+    val db: AppDatabase
+
+    init {
+        db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "database-name"
+        ).build()
+    }
 
     @Provides
     fun provideLedRepository(): LedAppRepository {
-        return LedAppRepositoryInMemory()
+        return db.ledDao()
     }
 
     @Provides

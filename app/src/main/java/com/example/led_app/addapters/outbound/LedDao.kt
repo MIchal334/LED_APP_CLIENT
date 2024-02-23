@@ -1,13 +1,12 @@
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.Query
 import androidx.room.Transaction
 import com.example.led_app.application.ports.outbound.LedAppRepository
 import com.example.led_app.domain.*
 
 @Dao
 interface LedDao : LedAppRepository {
-    @Query("SELECT led_name, ip_address FROM led")
+
     override fun getAllKnownServerNameAddress(): List<Pair<String, String>> {
         val resultList = mutableListOf<Pair<String, String>>()
         return resultList
