@@ -1,3 +1,4 @@
+package com.example.led_app.addapters.outbound
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Transaction
