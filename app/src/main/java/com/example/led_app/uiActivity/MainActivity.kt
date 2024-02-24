@@ -48,15 +48,9 @@ import kotlinx.coroutines.launch
 class MainActivity : ComponentActivity() {
 
     private lateinit var ledAppFacade: LedAppFacade
-    val db: AppDatabase = Room.databaseBuilder(
-        applicationContext,
-        AppDatabase::class.java, "database-name"
-    ).build()
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ledAppFacade = DaggerFacadeComponent.builder().facadeModule(FacadeModule(db)).build().injectFacade()
+        ledAppFacade = DaggerFacadeComponent.builder().facadeModule(FacadeModule(this)).build().injectFacade()
         setContent {
             Navigation(ledAppFacade)
         }
