@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "led_mode_data")
 data class LedModeData(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    val ledId: Int,
+    val id: Long = 0,
+    var ledId: Long,
     val optionName: String,
     val modeServerId: Int,
     val setColor: Boolean? = false

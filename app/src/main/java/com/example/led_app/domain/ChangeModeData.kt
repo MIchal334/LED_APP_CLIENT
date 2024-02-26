@@ -4,11 +4,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "led_change_data")
-data class ChangeModeData(
+class ChangeModeData(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-    val ledId: Int,
+    val id: Long = 0,
+    var ledId: Long,
     val optionName: String,
     val changeModeServerId: Int
-)
+) {
+
+}
 

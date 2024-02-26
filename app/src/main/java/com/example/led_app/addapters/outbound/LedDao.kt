@@ -2,25 +2,27 @@ package com.example.led_app.addapters.outbound
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.Query
 import androidx.room.Transaction
 import com.example.led_app.application.ports.outbound.LedAppRepository
 import com.example.led_app.domain.*
 
 @Dao
 interface LedDao : LedAppRepository {
-//    @Transaction
-//    @Query("SELECT * FROM led")
-//    fun getAllLed(): List<Led>
+    @Transaction
+    @Query("SELECT * FROM led")
+    fun getAllLed(): List<LedWithRelations>
     override fun getAllKnownServerNameAddress(): List<Pair<String, String>> {
-        val resultList = mutableListOf<Pair<String, String>>()
-        return resultList
+        return getAllLed().map { led -> Pair(led.led.ledName!!, led.led.ipAddress!!) }.toList()
     }
 
 
     @Transaction
-    override  fun saveNewLed(ledToSave: LedData): Boolean {
+    override fun saveNewLed(ledToSave: LedData): Boolean {
         val ledWithRelations = LedWithRelations.buildBaseLedData(ledToSave)
-        insertLedTest(ledWithRelations.led)
+        val identifier = insertLed(ledWithRelations.led)
+        ledWithRelations.ledModes.forEach { el -> el.ledId = identifier }
+        ledWithRelations.changeModes.forEach { el -> el.ledId = identifier }
         insertModes(ledWithRelations.ledModes)
         insertAnotherEntities(ledWithRelations.changeModes)
         return true
@@ -44,7 +46,7 @@ interface LedDao : LedAppRepository {
 
 
     @Insert
-    fun insertLedTest(led: Led)
+    fun insertLed(led: Led): Long
 
     @Insert
     fun insertModes(modes: List<LedModeData>)

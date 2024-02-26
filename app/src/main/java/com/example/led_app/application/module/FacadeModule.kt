@@ -20,6 +20,7 @@ class FacadeModule(val applicationContext: Context) {
 
     @Provides
     fun provideLedRepository(): LedAppRepository {
+//        db.clearAllTables()
         return db.ledDao()
     }
 

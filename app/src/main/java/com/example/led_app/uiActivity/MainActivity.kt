@@ -752,7 +752,17 @@ fun AddSliderWithText(text: String, min: Float, max: Float, currentValue: Int, v
 
 @Composable
 fun showLedList(ledAppFacade: LedAppFacade, navController: NavHostController) {
-    val serverList = ledAppFacade.getAllServersNameAndAddress()
+    var serverList by remember {
+        mutableStateOf<List<Pair<String, String>>>(emptyList())
+    }
+
+    LaunchedEffect(key1 = true) {
+        withContext(Dispatchers.IO) {
+            val list = ledAppFacade.getAllServersNameAndAddress()
+            serverList = list
+        }
+    }
+
     LazyColumn(Modifier.fillMaxHeight()) {
         items(serverList) { pair ->
             AddLedButton(
