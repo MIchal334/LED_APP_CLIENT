@@ -222,20 +222,20 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
             ButtonToGoForward(
                 onClick = {
                     coroutineScope.launch {
-                        withContext(Dispatchers.IO) {
-                            isLoaderVisible.value = true
-                            val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
-                            isLoaderVisible.value = false
-                            withContext(Dispatchers.Main) {
-                                if (isSaved.first) {
-                                    navController.navigate(Screen.MainScreen.route)
-                                } else {
-                                    dialogText.value = isSaved.second
-                                    isDialogVisible.value = true
-                                }
-                            }
+                        isLoaderVisible.value = true
+                        val isSaved = withContext(Dispatchers.IO) {
+                            ledAppFacade.saveNewLed(name.text, address.text)
                         }
+                        isLoaderVisible.value = false
+                        if (isSaved.first) {
+                            navController.navigate(Screen.MainScreen.route)
+                        } else {
+                            dialogText.value = isSaved.second
+                            isDialogVisible.value = true
+                        }
+
                     }
+
                 },
                 buttonText = ConstantsString.BUTTON_ADD_NEW_LED,
                 isVisible = isDialogVisible,
@@ -757,11 +757,11 @@ fun showLedList(ledAppFacade: LedAppFacade, navController: NavHostController) {
     }
 
     LaunchedEffect(key1 = true) {
-        withContext(Dispatchers.IO) {
-            val list = ledAppFacade.getAllServersNameAndAddress()
-            serverList = list
+        serverList = withContext(Dispatchers.IO) {
+            ledAppFacade.getAllServersNameAndAddress()
         }
     }
+
 
     LazyColumn(Modifier.fillMaxHeight()) {
         items(serverList) { pair ->
