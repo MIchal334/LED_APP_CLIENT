@@ -6,13 +6,14 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "led")
 data class Led(
-    @PrimaryKey val uid: Int,
+    @PrimaryKey(autoGenerate = true)
+    val uid: Int = 0,
     @ColumnInfo(name = "led_name") val ledName: String?,
     @ColumnInfo(name = "ip_address") val ipAddress: String?,
 ) {
     companion object {
         fun buildBaseOnLedData(ledName:String, ipAddress:String): Led {
-            return Led(0, ledName, ipAddress)
+            return Led(ledName =  ledName, ipAddress = ipAddress)
         }
     }
 

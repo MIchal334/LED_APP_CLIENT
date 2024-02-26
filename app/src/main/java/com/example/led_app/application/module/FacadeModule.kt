@@ -16,7 +16,7 @@ class FacadeModule(val applicationContext: Context) {
     val db: AppDatabase = Room.databaseBuilder(
         applicationContext,
         AppDatabase::class.java, "database-name"
-    ).build()
+    ).fallbackToDestructiveMigration().build()
 
     @Provides
     fun provideLedRepository(): LedAppRepository {

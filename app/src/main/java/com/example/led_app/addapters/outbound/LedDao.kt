@@ -8,7 +8,9 @@ import com.example.led_app.domain.*
 
 @Dao
 interface LedDao : LedAppRepository {
-
+//    @Transaction
+//    @Query("SELECT * FROM led")
+//    fun getAllLed(): List<Led>
     override fun getAllKnownServerNameAddress(): List<Pair<String, String>> {
         val resultList = mutableListOf<Pair<String, String>>()
         return resultList
@@ -16,7 +18,7 @@ interface LedDao : LedAppRepository {
 
 
     @Transaction
-    override fun saveNewLed(ledToSave: LedData): Boolean {
+    override  fun saveNewLed(ledToSave: LedData): Boolean {
         val ledWithRelations = LedWithRelations.buildBaseLedData(ledToSave)
         insertLedTest(ledWithRelations.led)
         insertModes(ledWithRelations.ledModes)

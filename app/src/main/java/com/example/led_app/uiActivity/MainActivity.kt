@@ -30,11 +30,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import androidx.room.Room
 import com.example.led_app.application.LedAppFacade
 import com.example.led_app.application.component.DaggerFacadeComponent
 import com.example.led_app.application.module.FacadeModule
-import com.example.led_app.config.AppDatabase
 import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.ConstantsString
 import com.example.led_app.domain.LedModeData
@@ -42,7 +40,9 @@ import com.example.led_app.domain.NewServerRequest
 import com.example.led_app.ui.theme.LED_APPTheme
 import com.google.gson.Gson
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class MainActivity : ComponentActivity() {
@@ -222,14 +222,18 @@ private fun AddNewLedScreen(ledAppFacade: LedAppFacade, navController: NavHostCo
             ButtonToGoForward(
                 onClick = {
                     coroutineScope.launch {
-                        isLoaderVisible.value = true
-                        val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
-                        isLoaderVisible.value = false
-                        if (isSaved.first) {
-                            navController.navigate(Screen.MainScreen.route)
-                        } else {
-                            dialogText.value = isSaved.second
-                            isDialogVisible.value = true
+                        withContext(Dispatchers.IO) {
+                            isLoaderVisible.value = true
+                            val isSaved = ledAppFacade.saveNewLed(name.text, address.text)
+                            isLoaderVisible.value = false
+                            withContext(Dispatchers.Main) {
+                                if (isSaved.first) {
+                                    navController.navigate(Screen.MainScreen.route)
+                                } else {
+                                    dialogText.value = isSaved.second
+                                    isDialogVisible.value = true
+                                }
+                            }
                         }
                     }
                 },
