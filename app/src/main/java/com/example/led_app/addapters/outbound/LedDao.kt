@@ -12,7 +12,28 @@ interface LedDao : LedAppRepository {
     @Transaction
     @Query("SELECT * FROM led")
     fun getAllLed(): List<LedWithRelations>
+
+    @Transaction
+    @Query("Select * FROM led_change_data")
+    fun getAll(): List<ChangeModeData>
+
+    @Transaction
+    @Query("Select * FROM led_mode_data")
+    fun getAll1(): List<LedModeData>
+
+    @Transaction
+    @Query("Delete FROM led_change_data")
+    fun deleteAll()
+
+    @Transaction
+    @Query("Delete FROM led_mode_data")
+    fun deleteAll1()
     override fun getAllKnownServerNameAddress(): List<Pair<String, String>> {
+//        deleteAll()
+//        deleteAll1()
+        deleteLed()
+        var test = getAll()
+        var test1 = getAll1()
         return getAllLed().map { led -> Pair(led.led.ledName!!, led.led.ipAddress!!) }.toList()
     }
 
@@ -29,11 +50,11 @@ interface LedDao : LedAppRepository {
     }
 
     override fun getChangeModeByLedName(ledName: String): List<ChangeModeData> {
-        TODO("Not yet implemented")
+        return getAllLed().first { led -> led.led.ledName.equals(ledName) }.changeModes
     }
 
     override fun getModeByLedName(ledName: String): List<LedModeData> {
-        TODO("Not yet implemented")
+        return getAllLed().first { led -> led.led.ledName.equals(ledName) }.ledModes
     }
 
     override fun deleteLed(ledName: String) {
@@ -44,6 +65,15 @@ interface LedDao : LedAppRepository {
         TODO("Not yet implemented")
     }
 
+    @Transaction
+    @Query("DELETE FROM led")
+    fun deleteLed()
+
+//    @Delete
+//    fun deleteModes(modes: List<LedModeData>)
+//
+//    @Delete
+//    fun deleteAnotherEntities(anotherEntities: List<ChangeModeData>)
 
     @Insert
     fun insertLed(led: Led): Long

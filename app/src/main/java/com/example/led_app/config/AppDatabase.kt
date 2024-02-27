@@ -7,7 +7,7 @@ import com.example.led_app.domain.ChangeModeData
 import com.example.led_app.domain.Led
 import com.example.led_app.domain.LedModeData
 
-@Database(entities = [Led::class, ChangeModeData::class, LedModeData::class], version = 2)
+@Database(entities = [Led::class, ChangeModeData::class, LedModeData::class], version = 4)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun ledDao(): LedDao
 }

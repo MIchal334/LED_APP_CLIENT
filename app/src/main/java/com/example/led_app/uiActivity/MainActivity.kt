@@ -307,7 +307,9 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                     onClick = {
                         coroutineScope.launch {
                             isLoaderVisible.value = true
-                            val isUpdated = ledAppFacade.updateLedConfig(ledName, ledIp)
+                            val isUpdated = withContext(Dispatchers.IO) {
+                                ledAppFacade.updateLedConfig(ledName, ledIp)
+                            }
                             isLoaderVisible.value = false
                             if (isUpdated) {
                                 isDialogVisible.value = true
@@ -451,7 +453,16 @@ private fun ChangeModeScreen(
     navController: NavHostController,
     requestBuilder: NewServerRequest.Builder
 ) {
-    val changesModeList = ledAppFacade.getChangesModeByName(requestBuilder.getLedName())
+    var changesModeList by remember {
+        mutableStateOf<List<ChangeModeData>>(emptyList())
+    }
+
+    LaunchedEffect(key1 = true) {
+        changesModeList = withContext(Dispatchers.IO) {
+            ledAppFacade.getChangesModeByName(requestBuilder.getLedName())
+        }
+    }
+
     LED_APPTheme {
         Column {
             val coroutineScope = rememberCoroutineScope()
@@ -525,7 +536,16 @@ private fun LedModeScreen(
     navController: NavHostController,
     requestBuilder: NewServerRequest.Builder
 ) {
-    val ledModeList = ledAppFacade.getLedModeByName(requestBuilder.getLedName())
+    var ledModeList by remember {
+        mutableStateOf<List<LedModeData>>(emptyList())
+    }
+
+    LaunchedEffect(key1 = true) {
+        ledModeList = withContext(Dispatchers.IO) {
+            ledAppFacade.getLedModeByName(requestBuilder.getLedName())
+        }
+    }
+
     LED_APPTheme {
         Column {
             val coroutineScope = rememberCoroutineScope()
