@@ -23,6 +23,8 @@ object ConstantsString {
     const val SEND_ERROR_OCCURED = "Wystąpił błąd podczas wysylania rzadania"
     const val LED_UPDATED = "Dane zaktualizowane pomyślnie"
     const val LED_DATA_NOT_VALID = "Podane dane są błędne. Nazwa isteje już w systemie lub adres serwera jest nie poprawny"
+    const val LED_DELETED = "LED został usunięty"
+    const val BUTTON_DELETED_LED = "Usuń LED z urządzania"
 
 
 

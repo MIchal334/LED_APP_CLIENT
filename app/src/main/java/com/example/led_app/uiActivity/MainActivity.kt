@@ -350,6 +350,35 @@ private fun LedScreen(ledAppFacade: LedAppFacade, navController: NavHostControll
                     dialogText = dialogText.value,
                     isEnable = !isLoaderVisible.value
                 )
+
+                Spacer(modifier = Modifier.height(30.dp))
+
+                ButtonToGoForward(
+                    onClick = {
+                        coroutineScope.launch {
+                            isLoaderVisible.value = true
+                            val isDeleted = withContext(Dispatchers.IO) {
+                                ledAppFacade.deleteLedByName(ledName)
+                            }
+                            isLoaderVisible.value = false
+                            if (isDeleted) {
+                                dialogText.value = ConstantsString.LED_DELETED
+                                isDialogVisible.value = true
+                                navController.navigate(Screen.MainScreen.route)
+
+                            } else {
+                                dialogText.value = ConstantsString.ERROR_OCCURED
+                                isDialogVisible.value = true
+                            }
+                        }
+                    },
+                    buttonText = ConstantsString.BUTTON_DELETED_LED,
+                    isVisible = isDialogVisible,
+                    dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION,
+                    dialogText = dialogText.value,
+                    isEnable = !isLoaderVisible.value
+                )
+
                 if (isLoaderVisible.value) {
                     CircularProgressBar()
                 }

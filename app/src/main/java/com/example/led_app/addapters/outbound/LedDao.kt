@@ -12,6 +12,7 @@ interface LedDao : LedAppRepository {
     @Transaction
     @Query("SELECT * FROM led")
     fun getAllLed(): List<LedWithRelations>
+
     @Transaction
     @Query("Delete FROM led")
     fun deleteAllLED()
@@ -40,8 +41,9 @@ interface LedDao : LedAppRepository {
         return getAllLed().first { led -> led.led.ledName.equals(ledName) }.ledModes
     }
 
-    override fun deleteLed(ledName: String) {
+    override fun deleteLed(ledName: String): Boolean {
         deleteLedByName(ledName)
+        return true
     }
 
     override fun updateLed(ledData: LedData): Boolean {

@@ -13,6 +13,10 @@ class LedAppFacade @Inject constructor(private val ledRepository: LedAppReposito
         return ledRepository.getAllKnownServerNameAddress()
     }
 
+    fun deleteLedByName(ledName: String): Boolean{
+        return ledRepository.deleteLed(ledName)
+    }
+
     suspend fun turnOffLed(ledIpAddress: String): Boolean {
         return ledClient.turnOffLed(ledIpAddress)
     }

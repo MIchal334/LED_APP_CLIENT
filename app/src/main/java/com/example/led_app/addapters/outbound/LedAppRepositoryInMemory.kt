@@ -34,8 +34,9 @@ class LedAppRepositoryInMemory @Inject constructor() : LedAppRepository {
         return foundLed.ledModes
     }
 
-    override fun deleteLed(ledName: String) {
+    override fun deleteLed(ledName: String): Boolean {
         ledList.removeIf { it.ledName == ledName }
+        return true
     }
 
     override fun updateLed(ledData: LedData): Boolean {
@@ -45,3 +46,4 @@ class LedAppRepositoryInMemory @Inject constructor() : LedAppRepository {
 
 
 }
+//192.168.20.67

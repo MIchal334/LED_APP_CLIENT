@@ -6,14 +6,14 @@ import com.example.led_app.domain.LedModeData
 
 
 interface LedAppRepository {
-    fun getAllKnownServerNameAddress(): List<Pair<String,String>>
+    fun getAllKnownServerNameAddress(): List<Pair<String, String>>
 
     fun saveNewLed(ledToSave: LedData): Boolean
 
-    fun getChangeModeByLedName(ledName:String): List<ChangeModeData>
+    fun getChangeModeByLedName(ledName: String): List<ChangeModeData>
 
-    fun getModeByLedName(ledName:String): List<LedModeData>
-    fun deleteLed(ledName: String)
+    fun getModeByLedName(ledName: String): List<LedModeData>
+    fun deleteLed(ledName: String): Boolean
 
     fun updateLed(ledData: LedData): Boolean
 }
