@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -835,9 +837,12 @@ fun AddLedButton(
     navController: NavHostController
 ) {
     val isDialogVisible = remember { mutableStateOf(false) }
+    val isDeleteDialogVisible = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val isLoaderVisible = remember { mutableStateOf(false) }
-    return Box(
+    var dialogText = remember { mutableStateOf("") }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 16.dp)
@@ -846,40 +851,101 @@ fun AddLedButton(
             onClick = {
                 coroutineScope.launch {
                     isLoaderVisible.value = true
-                    val connected = ledAppFacade.testConnectionWithServer(ledAddress)
-                    isLoaderVisible.value = false
-                    if (connected) {
-                        navController.navigate(
-                            Screen.LedScreen.route.replace(
-                                oldValue = "{ledIp}",
-                                newValue = ledAddress
-                            ).replace(
-                                oldValue = "{ledName}",
-                                newValue = ledName
+                    if (!isDeleteDialogVisible.value) {
+                        val connected = ledAppFacade.testConnectionWithServer(ledAddress)
+                        isLoaderVisible.value = false
+                        if (connected) {
+                            navController.navigate(
+                                Screen.LedScreen.route.replace(
+                                    oldValue = "{ledIp}",
+                                    newValue = ledAddress
+                                ).replace(
+                                    oldValue = "{ledName}",
+                                    newValue = ledName
+                                )
                             )
-                        )
-                    } else {
-                        isDialogVisible.value = true
+                        } else {
+                            isDialogVisible.value = true
+                        }
                     }
                 }
             },
-            modifier = Modifier.fillMaxWidth().height(60.dp)
-                .border(2.dp, MaterialTheme.colorScheme.background, shape = RectangleShape),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .border(2.dp, MaterialTheme.colorScheme.background, shape = RectangleShape)
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Initial)
+                            event.changes.forEach { pointerInputChange ->
+                                if (pointerInputChange.pressed) {
+                                    val pressStartTime = System.currentTimeMillis()
+                                    while (pointerInputChange.pressed) {
+                                        if (System.currentTimeMillis() - pressStartTime > 800) {
+                                            isDeleteDialogVisible.value = true
+                                            break
+                                        }
+                                        awaitPointerEvent(PointerEventPass.Initial)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
             colors = ButtonDefaults.buttonColors(Color.DarkGray)
-
-
         ) {
             Text(text = text, textAlign = TextAlign.Left)
             if (isDialogVisible.value) {
                 AlertDialog(
                     onDismissRequest = { isDialogVisible.value = false },
-                    onConfirmation = { isDialogVisible.value = false },
-                    dialogText = ConstantsString.DIALOG_INFORMATION_LED_NOT_EXIST,
-                    dialogTitle = ConstantsString.DIALOG_TITLE_INFORMATION
+                    confirmButton = {
+                        Button(onClick = { isDialogVisible.value = false }) {
+                            Text("OK")
+                        }
+                    },
+                    text = { Text(ConstantsString.DIALOG_INFORMATION_LED_NOT_EXIST) },
+                    title = { Text(ConstantsString.DIALOG_TITLE_INFORMATION) }
+                )
+            }
+            if (isDeleteDialogVisible.value) {
+                AlertDialog(
+                    onDismissRequest = { isDeleteDialogVisible.value = false },
+                    confirmButton = {
+                        Button(onClick = {
+                            coroutineScope.launch {
+                                isDeleteDialogVisible.value = false
+                                isLoaderVisible.value = true
+                                val isDeleted = withContext(Dispatchers.IO) {
+                                    ledAppFacade.deleteLedByName(ledName)
+                                }
+                                isLoaderVisible.value = false
+                                if (isDeleted) {
+                                    dialogText.value = ConstantsString.LED_DELETED
+                                    isDialogVisible.value = true
+                                    navController.navigate(Screen.MainScreen.route)
+
+                                } else {
+                                    dialogText.value = ConstantsString.ERROR_OCCURED
+                                    isDialogVisible.value = true
+                                }
+                            }
+
+                        }) {
+                            Text(ConstantsString.YES)
+                        }
+                    },
+                    dismissButton = {
+                        Button(onClick = { isDeleteDialogVisible.value = false }) {
+                            Text(ConstantsString.NO)
+                        }
+                    },
+                    text = { Text(ConstantsString.DELETE_LED) },
+                    title = { Text(ConstantsString.DIALOG_TITLE_INFORMATION) }
                 )
             }
             if (isLoaderVisible.value) {
-                CircularProgressBar()
+                CircularProgressIndicator()
             }
         }
     }

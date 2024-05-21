@@ -25,6 +25,9 @@ object ConstantsString {
     const val LED_DATA_NOT_VALID = "Podane dane są błędne. Nazwa isteje już w systemie lub adres serwera jest nie poprawny"
     const val LED_DELETED = "LED został usunięty"
     const val BUTTON_DELETED_LED = "Usuń LED z urządzania"
+    const val DELETE_LED = "Czy na pewno chcesz usunąć ten LED"
+    const val YES = "Tak"
+    const val NO = "Nie"
 
 
 
